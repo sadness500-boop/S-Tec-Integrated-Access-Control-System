@@ -1,7 +1,7 @@
 {
-  "version": "1.0.2",
+  "version": "1.0.3",
   "date": "2026-11-20",
-  "note": "메인 히어로를 통합 출입관리 시스템 디오라마 애니메이션으로 교체, Media Wall을 통합관리 시스템 v1.8.1과 같게(「우수근무 영상」 분류 · 영상 35편, 새 분류 자동 탭)",
-  "html": "releases/S-Tec-Integrated-Access-Control-System_v1.0.2.html",
-  "apk": "releases/S-Tec-Integrated-Access-Control-System_v1.0.2.apk"
+  "note": "메인 히어로 디오라마 애니메이션 교체(원본 GIF 그대로 · 640×360 원본 크기로 표시해 해상도 유지), 출력물 표지 그림도 같은 디오라마로 교체",
+  "html": "releases/S-Tec-Integrated-Access-Control-System_v1.0.3.html",
+  "apk": "releases/S-Tec-Integrated-Access-Control-System_v1.0.3.apk"
 }
