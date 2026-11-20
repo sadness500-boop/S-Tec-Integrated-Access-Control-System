@@ -1,7 +1,7 @@
 {
-  "version": "1.0.1",
+  "version": "1.0.2",
   "date": "2026-11-20",
-  "note": "메인 화면 개선 — 상단 바 한 줄 정리(로고 · 이름 | 카드), 히어로 디오라마 교체, 통합관리 시스템과 같은 S-Tec Media Wall(사진 · 영상) 적용(숨기기 유지)",
-  "html": "releases/S-Tec-Integrated-Access-Control-System_v1.0.1.html",
-  "apk": "releases/S-Tec-Integrated-Access-Control-System_v1.0.1.apk"
+  "note": "메인 히어로를 통합 출입관리 시스템 디오라마 애니메이션으로 교체, Media Wall을 통합관리 시스템 v1.8.1과 같게(「우수근무 영상」 분류 · 영상 35편, 새 분류 자동 탭)",
+  "html": "releases/S-Tec-Integrated-Access-Control-System_v1.0.2.html",
+  "apk": "releases/S-Tec-Integrated-Access-Control-System_v1.0.2.apk"
 }

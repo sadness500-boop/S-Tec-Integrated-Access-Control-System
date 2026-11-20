@@ -2,7 +2,7 @@
 
 <img src="icons/icon-192.png" width="96" alt="통합 출입관리 시스템 아이콘">
 
-**에스텍 그룹 통합 출입관리 시스템** · v1.0.1 · 통합관리 시스템 11번째 프로그램 (`stac`)
+**에스텍 그룹 통합 출입관리 시스템** · v1.0.2 · 통합관리 시스템 11번째 프로그램 (`stac`)
 
 > 들어오는 모든 사람과 차량을 한 화면에서 — 이름 초성 · 차량번호 앞 두 자리 · 업체명만 넣어도
 > 방문자와 방문차량의 누적 출입 DATA가 바로 나옵니다.
@@ -12,7 +12,7 @@
 | 구분 | 주소 |
 |---|---|
 | 웹 버전 | https://sadness500-boop.github.io/S-Tec-Integrated-Access-Control-System/ |
-| 파일 하나로 여는 배포본 | `releases/S-Tec-Integrated-Access-Control-System_v1.0.1.html` |
+| 파일 하나로 여는 배포본 | `releases/S-Tec-Integrated-Access-Control-System_v1.0.2.html` |
 | 안드로이드 앱 (최신) | https://github.com/sadness500-boop/S-Tec-Integrated-Access-Control-System/releases/download/app-latest/stac-latest.apk |
 
 - **APK는 GitHub Actions가 만듭니다.** `index.html` · `version.json`을 올리면 Actions 「Android APK」가 약 5분 뒤 `releases/`와 릴리스에 APK를 올립니다.
@@ -33,8 +33,8 @@
 
 ## 화면
 
-- **메인**: 상단 바 한 줄(좌측 앱 아이콘 · 이름 | 사업장 · 담당 · QR · 추천 · 계정 · 테마) · 히어로(통합 출입관리 시스템 디오라마) · **통합 검색 칸** · 오늘 방문자 · 차량 · 구내 체류 · 누적 DATA
-- **S-Tec Media Wall**: 통합관리 시스템 메인과 같은 사진(크로스페이드) · 영상(연속 재생) · 흐르는 띠 — 통합관리 시스템 `media/`를 함께 사용, 「🎬 사진 · 영상 숨기기」로 접기
+- **메인**: 상단 바 한 줄(좌측 앱 아이콘 · 이름 | 사업장 · 담당 · QR · 추천 · 계정 · 테마) · 히어로(통합 출입관리 시스템 디오라마 애니메이션) · **통합 검색 칸** · 오늘 방문자 · 차량 · 구내 체류 · 누적 DATA
+- **S-Tec Media Wall**: 통합관리 시스템 메인과 같은 사진(크로스페이드) · 영상(연속 재생) · 흐르는 띠 — 통합관리 시스템 `media/`를 함께 사용, 「전체 · 근무 영상 · 우수근무 영상 · Complaint 사례」 탭(새 분류는 자동 추가) · 「🎬 사진 · 영상 숨기기」로 접기
 - **🚪 출입 등록** · **📋 출입 현황** · **🗂 DATA 조회 · 관리** · **🏢 회사 정보** · **🖨 출력** · **⚙ 설정 · 연동**
 - 통합관리 시스템 공통: 담당 카드 · 다운로드 QR · 친구 추천 · 내 계정 · ☀ 주간 / ☾ 야간 / ▣ 시스템 · 왼쪽 아래 「메인」
 

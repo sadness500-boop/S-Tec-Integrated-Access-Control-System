@@ -10,9 +10,9 @@
 <title>S-Tec Integrated Access Control System · 통합 출입관리 시스템</title>
 <meta name="description" content="에스텍 통합 출입관리 시스템 — 방문자 · 방문차량 출입 등록과 누적 DATA 관리">
 <meta name="theme-color" content="#0C2350">
-<link rel="manifest" href="manifest.webmanifest?v=1.0.1">
-<link rel="icon" href="icons/favicon-48.png?v=1.0.1">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.0.1">
+<link rel="manifest" href="manifest.webmanifest?v=1.0.2">
+<link rel="icon" href="icons/favicon-48.png?v=1.0.2">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.0.2">
 <style>
 /* =====================================================================
    S-Tec Integrated Access Control System — 화면 디자인
@@ -391,6 +391,8 @@ html[data-theme="dark"] .mainbtn{background:#EEF1FA;color:#0F1530}
 }
 @media (min-width:1101px) and (max-width:1380px){.brand-txt small{display:none}.bcard .t1{display:none}}
 
+/* 히어로 — 디오라마 애니메이션(16:9)을 꽉 채워 보여 줌 */
+.hero-art img{object-fit:cover;object-position:50% 50%}
 /* ---------- 출입관리 전용 ---------- */
 .hero{overflow:visible;z-index:5}
 .hero::before{display:none}
@@ -502,7 +504,7 @@ html[data-theme="dark"] .lnkb{color:#9DB0FF}
       </div>
       <div class="hero-act"><button class="cta" type="button" data-go="entry">🚪 출입 등록</button><button class="cta l" type="button" data-go="now">📋 구내 현황</button><button class="cta l" type="button" data-go="data">🗂 DATA 조회</button><button class="cta l" type="button" data-go="report">🖨 출력</button></div>
     </div>
-    <figure class="hero-art"><img id="heroImg" alt="에스텍 통합 출입관리 시스템 디오라마 — 스피드게이트 · 출입 인증 · 보안요원" fetchpriority="high"></figure>
+    <figure class="hero-art"><img id="heroImg" alt="에스텍 통합 출입관리 시스템 디오라마 애니메이션 — 스피드게이트 · 출입 인증 · 보안요원" fetchpriority="high"></figure>
   </section>
 
   <div class="medtog"><button class="btn sm" id="medTog" type="button">🎬 사진 · 영상 숨기기</button></div>

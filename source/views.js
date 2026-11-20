@@ -569,7 +569,7 @@ async function buildSignature(date) {
 }
 async function init() {
   buildSites();
-  $('#appIcon').src = ASSET.icon; $('#gateLogo').src = ASSET.icon; $('#lockLogo').src = ASSET.icon; $('#heroImg').src = ASSET.hero; $('#mainIc').src = ASSET.icon;
+  $('#appIcon').src = ASSET.icon; $('#gateLogo').src = ASSET.icon; $('#lockLogo').src = ASSET.icon; $('#heroImg').src = ASSET.heroAnim || ASSET.hero; $('#mainIc').src = ASSET.icon;
   $('#ver').textContent = APP.version;
   $('#mgrCard').onclick = openMgr; $('#qrCard').onclick = openQR; $('#refCard').onclick = openRef; $('#siteCard').onclick = openSitePick; $('#btnGuide').onclick = e => { e.preventDefault(); openGuide(); };
   $$('[data-theme-set]').forEach(b => b.onclick = () => applyTheme(b.dataset.themeSet));

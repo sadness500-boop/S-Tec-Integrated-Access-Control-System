@@ -73,11 +73,13 @@ function chartPng(kind, o, w = 1000, h = 420) { const cv = document.createElemen
  * ===================================================================== */
 const MW_BASE = 'https://sadness500-boop.github.io/S-Tec-Operations-and-Sales-Integrated-Management-System/media/';
 const MW = { photos: [], videos: [], cat: 'all', pi: -1, vi: -1, pl: 0, vl: 0, playing: true, timer: null, base: MW_BASE, ready: false, off: 0 };
-const MW_CATS = [['all', '전체'], ['근무 영상', '근무 영상'], ['Complaint 사례', 'Complaint 사례']];
+const MW_CATS = [['all', '전체'], ['근무 영상', '근무 영상'], ['우수근무 영상', '우수근무 영상'], ['Complaint 사례', 'Complaint 사례']];
 const G = id => document.getElementById(id);
 async function mediaInit() {
   try { const r = await fetch(MW.base + 'media.json', { cache: 'no-cache', credentials: 'omit', referrerPolicy: 'no-referrer' }); if (!r.ok) throw 0; MW.all = await r.json(); }
   catch (e) { G('mediaRow').classList.add('hidden'); G('medTog').classList.add('hidden'); return; }
+  /* 통합관리 시스템에 새 분류가 생기면 자동으로 탭 추가 */
+  const known = new Set(MW_CATS.map(c => c[0])); [...MW.all.videos, ...MW.all.photos].forEach(x => { if (x.g && !known.has(x.g) && MW.all.videos.some(v => v.g === x.g)) { known.add(x.g); MW_CATS.push([x.g, x.g]); } });
   G('mwTabs').innerHTML = MW_CATS.map(c => `<button type="button" data-c="${esc(c[0])}">${esc(c[1])}</button>`).join('');
   G('mwTabs').querySelectorAll('button').forEach(b => b.onclick = () => mwCat(b.dataset.c));
   const vol = +(localStorage.getItem('stac_vol') || 60); G('vdVol').value = vol;
