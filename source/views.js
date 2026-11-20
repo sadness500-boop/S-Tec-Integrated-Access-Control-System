@@ -575,10 +575,10 @@ async function init() {
   $$('[data-theme-set]').forEach(b => b.onclick = () => applyTheme(b.dataset.themeSet));
   $$('.tabs button').forEach(b => b.onclick = () => setTab(b.dataset.tab));
   $$('[data-go]').forEach(b => b.onclick = () => { setTab(b.dataset.go); $('.tabs').scrollIntoView({ behavior: 'smooth' }); });
-  const mt = () => { $('#mediaRow').classList.toggle('hidden', !!UI.hideMedia); $('#medTog').textContent = UI.hideMedia ? '🎬 현장 영상 보기' : '🎬 현장 영상 숨기기'; };
+  const mt = () => { $('#mediaRow').classList.toggle('hidden', !!UI.hideMedia); $('#medTog').textContent = UI.hideMedia ? '🎬 사진 · 영상 보기' : '🎬 사진 · 영상 숨기기'; mwShow(!UI.hideMedia); };
   $('#medTog').onclick = () => { UI.hideMedia = !UI.hideMedia; saveUI(); mt(); }; mt();
   if (!UI.F || typeof UI.F !== 'object') UI.F = { per: 'm' };
-  applyTheme(UI.theme); renderHeader(); showGate(); initPlayer(); bindSearch(); bindLock(); armLock(); renderAll(); renderShareState();
+  applyTheme(UI.theme); renderHeader(); showGate(); mediaInit(); bindSearch(); bindLock(); armLock(); renderAll(); renderShareState();
   window.addEventListener('app-access', () => renderAll());
   window.addEventListener('resize', () => { clearTimeout(V.rt); V.rt = setTimeout(drawCharts, 200); });
   setInterval(() => { renderShareState(); if (SHARE.ok == null && sbClient()) flushShare(); if (UI.tab === 'entry' && !document.activeElement.closest('.fg')) renderTodayList(); renderHeroStats(); }, 30000);

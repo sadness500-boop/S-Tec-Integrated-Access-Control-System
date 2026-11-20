@@ -10,9 +10,9 @@
 <title>S-Tec Integrated Access Control System · 통합 출입관리 시스템</title>
 <meta name="description" content="에스텍 통합 출입관리 시스템 — 방문자 · 방문차량 출입 등록과 누적 DATA 관리">
 <meta name="theme-color" content="#0C2350">
-<link rel="manifest" href="manifest.webmanifest?v=1.0.0">
-<link rel="icon" href="icons/favicon-48.png?v=1.0.0">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.0.0">
+<link rel="manifest" href="manifest.webmanifest?v=1.0.1">
+<link rel="icon" href="icons/favicon-48.png?v=1.0.1">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.0.1">
 <style>
 /* =====================================================================
    S-Tec Integrated Access Control System — 화면 디자인
@@ -320,7 +320,76 @@ html[data-theme="dark"] .gate .lock{background:#3a1a18;color:#ffb4a9}
 .mainbtn{position:fixed;left:14px;bottom:14px;z-index:45;display:flex;align-items:center;gap:6px;background:var(--ink);color:#fff;border-radius:999px;padding:7px 13px 7px 8px;font-size:12.5px;font-weight:800;text-decoration:none;box-shadow:var(--shadow-lg)}
 .mainbtn img{width:22px;height:22px;border-radius:6px}
 html[data-theme="dark"] .mainbtn{background:#EEF1FA;color:#0F1530}
-@media print{.band,.tabs,.mainbtn,.savebar,.player,.hero,.mediarow{display:none!important}}
+@media print{.band,.tabs,.mainbtn,.savebar,.player,.hero,.mediarow,.mw{display:none!important}}
+
+
+/* ---------- S-Tec Media Wall (통합관리 시스템 메인과 같은 사진 · 영상) ---------- */
+.mw{position:relative;background:#0A0F22;border-radius:28px;box-shadow:var(--shadow-lg);padding:22px 22px 18px;margin-bottom:18px;color:#fff;overflow:hidden;isolation:isolate}
+.mw.hidden{display:none}
+.mw::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(600px 260px at 0 0,rgba(42,68,212,.35),transparent 70%),radial-gradient(500px 240px at 100% 100%,rgba(34,160,74,.22),transparent 70%)}
+.mw-head{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:0 2px 16px}
+.mw-head h2{margin:0;font-size:24px;font-weight:800;letter-spacing:-.035em;color:#fff;white-space:nowrap}
+.mw-head h2 span{display:block;font-size:11.5px;font-weight:700;letter-spacing:.1em;color:#5EE08C;text-transform:uppercase;margin-bottom:2px}
+.mw-head small{color:rgba(255,255,255,.6);font-size:13px;padding-bottom:3px}
+.mw-tabs{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:999px;padding:4px}
+.mw-tabs button{border:0;background:none;color:rgba(255,255,255,.72);border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:600;transition:all .15s}
+.mw-tabs button:hover{color:#fff}
+.mw-tabs button.on{background:#fff;color:#0A0F22}
+.mw-stage{display:grid;grid-template-columns:1fr 1.7fr;gap:14px;height:420px}
+.mw-pane{position:relative;overflow:hidden;border-radius:20px;background:#05081A;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.mw-pane .lay{position:absolute;inset:0;opacity:0;transition:opacity 1.3s ease}
+.mw-pane .lay.on{opacity:1}
+.mw-photo .bgblur{position:absolute;inset:-30px;background-size:cover;background-position:center;filter:blur(28px) brightness(.5) saturate(1.3);transform:scale(1.1)}
+.mw-photo img.pic{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform-origin:center}
+.mw-photo .lay.on img.pic{animation:kb 7s ease-out forwards}
+@keyframes kb{from{transform:scale(1.0) translate(0,0)}to{transform:scale(1.06) translate(-1%,-1%)}}
+.mw-video video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
+.mw-cap{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:40px 16px 14px;color:#fff;font-size:13px;background:linear-gradient(transparent,rgba(3,6,20,.86));display:flex;align-items:flex-end;gap:8px;pointer-events:none}
+.mw-cap b{font-size:15px;font-weight:700;letter-spacing:-.02em}
+.mw-cap .g{font-size:11px;font-weight:700;background:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-radius:999px;padding:3px 9px;white-space:nowrap}
+.mw-cap .n{margin-left:auto;opacity:.65;font-size:11.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.mw-badge{position:absolute;top:12px;left:12px;z-index:3;font-size:10.5px;font-weight:800;letter-spacing:.08em;color:#fff;background:rgba(255,255,255,.14);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:4px 10px;pointer-events:none}
+.mw-video .mw-cap{bottom:56px;padding-bottom:8px}
+.mw-ctl{position:absolute;left:10px;right:10px;bottom:10px;z-index:4;display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:14px;background:rgba(8,12,30,.62);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.1);color:#fff}
+.mw-ctl button{border:0;background:transparent;color:#fff;border-radius:10px;width:34px;height:32px;font-size:14px;display:inline-flex;align-items:center;justify-content:center}
+.mw-ctl button:hover{background:rgba(255,255,255,.14)}
+.mw-ctl button.play{width:40px;height:34px;background:#fff;color:#0A0F22;border-radius:999px}
+.mw-ctl input[type=range]{width:100px;accent-color:#5EE08C;padding:0;border:0;background:none}
+.mw-ctl .prog{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.18);overflow:hidden;min-width:40px}
+.mw-ctl .prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#5EE08C,#7B95FF)}
+.mw-ctl .vol{display:inline-flex;align-items:center;gap:4px}
+.mw-pane .nav{position:absolute;top:50%;transform:translateY(-50%);z-index:4;border:1px solid rgba(255,255,255,.2);width:38px;height:38px;border-radius:50%;background:rgba(8,12,30,.45);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;font-size:18px;opacity:0;transition:opacity .2s}
+.mw-pane:hover .nav{opacity:1}
+.mw-pane .nav.l{left:10px}.mw-pane .nav.r{right:10px}
+.mw-strip{position:relative;overflow:hidden;margin-top:14px;border-radius:14px;height:88px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+.mw-track{display:flex;gap:8px;position:absolute;left:0;top:0;height:100%;will-change:transform}
+.mw-track .th{position:relative;flex:none;height:88px;border-radius:12px;overflow:hidden;border:0;padding:0;background:#05081A;cursor:pointer;opacity:.55;transition:opacity .2s,transform .2s}
+.mw-track .th:hover{opacity:1;transform:translateY(-2px)}
+.mw-track .th.cur{outline:2px solid #5EE08C;outline-offset:-2px;opacity:1}
+.mw-track .th img{height:100%;width:auto;display:block}
+.mw-track .th .vi{position:absolute;right:6px;bottom:6px;font-size:10px;background:rgba(0,0,0,.6);color:#fff;border-radius:999px;padding:1px 7px}
+@media (prefers-reduced-motion:reduce){.mw-photo .lay.on img.pic{animation:none}}
+@media (max-width:980px){.mw-stage{grid-template-columns:1fr;height:auto}.mw-photo{height:320px}.mw-video{aspect-ratio:16/9}.mw-ctl input[type=range]{width:70px}}
+@media (max-width:640px){.mw{padding:16px 14px;border-radius:22px}.mw-tabs{margin-left:0}.mw-head h2{font-size:21px}}
+.why-strip{margin-bottom:26px}
+.why-strip .prin{grid-template-columns:repeat(4,1fr)}
+@media (max-width:980px){.why-strip .prin{grid-template-columns:1fr 1fr}}
+/* ---------- 상단 바: 한 줄(로고 · 이름 | 카드) ---------- */
+@media (min-width:1101px){
+  .band-in{flex-wrap:nowrap;gap:10px}
+  .brand{flex:1 1 auto;min-width:0;gap:10px}
+  .brand .appicon{width:48px;height:48px}
+  .brand-txt b{font-size:15px}
+  .brand-txt small{font-size:11.5px}
+  .brand-txt .eyebrow2{font-size:10px}
+  .cards{flex:0 1 auto;flex-wrap:nowrap;gap:5px}
+  .bcard{padding:3px 10px 3px 3px;gap:6px}
+  .bcard .ph{width:30px;height:30px}
+  .bcard .t1{font-size:10px}
+  .bcard .t2{font-size:12.5px}
+  .seg button{padding:4px 8px;font-size:12px}
+}
+@media (min-width:1101px) and (max-width:1380px){.brand-txt small{display:none}.bcard .t1{display:none}}
 
 /* ---------- 출입관리 전용 ---------- */
 .hero{overflow:visible;z-index:5}
@@ -433,27 +502,38 @@ html[data-theme="dark"] .lnkb{color:#9DB0FF}
       </div>
       <div class="hero-act"><button class="cta" type="button" data-go="entry">🚪 출입 등록</button><button class="cta l" type="button" data-go="now">📋 구내 현황</button><button class="cta l" type="button" data-go="data">🗂 DATA 조회</button><button class="cta l" type="button" data-go="report">🖨 출력</button></div>
     </div>
-    <figure class="hero-art"><img id="heroImg" alt="에스텍 통합 출입관리 시스템 — 보안 근무자 디오라마와 출입관리 아이콘" fetchpriority="high"></figure>
+    <figure class="hero-art"><img id="heroImg" alt="에스텍 통합 출입관리 시스템 디오라마 — 스피드게이트 · 출입 인증 · 보안요원" fetchpriority="high"></figure>
   </section>
 
-  <div class="medtog"><button class="btn sm" id="medTog" type="button">🎬 현장 영상 숨기기</button></div>
-  <section class="mediarow" id="mediaRow" aria-label="현장 영상">
-    <div class="player" id="player">
-      <div class="scr"><video id="vid" playsinline muted preload="metadata"></video>
-        <div class="cap"><b id="vTitle">현장 영상</b><span>S-TEC 출입 보안</span></div></div>
-      <div class="prog" id="vProg"><i></i></div>
-      <div class="ctl">
-        <button type="button" id="vPrev" title="이전 영상" aria-label="이전 영상">⏮</button>
-        <button type="button" class="main" id="vPlay" title="재생 / 정지" aria-label="재생 또는 정지">▶</button>
-        <button type="button" id="vNext" title="다음 영상" aria-label="다음 영상">⏭</button>
-        <button type="button" id="vStop" title="정지(처음으로)" aria-label="정지">⏹</button>
-        <span class="vol"><button type="button" id="vMute" title="소리 켜기 / 끄기" aria-label="소리 켜기 또는 끄기">🔇</button><input type="range" id="vVol" min="0" max="1" step="0.05" aria-label="음량"></span>
-        <label><input type="checkbox" id="vAuto" checked> 다음 영상 자동</label>
-        <span class="tm" id="vTime">0:00 / 0:00</span>
+  <div class="medtog"><button class="btn sm" id="medTog" type="button">🎬 사진 · 영상 숨기기</button></div>
+  <section class="mw" id="mediaRow" aria-label="S-Tec 사진·영상">
+    <div class="mw-head"><h2><span>Field Gallery</span>S-Tec Media Wall</h2><small id="mwSub">에스텍 현장 사진 · 근무 영상</small>
+      <div class="mw-tabs" id="mwTabs"></div></div>
+    <div class="mw-stage">
+      <div class="mw-pane mw-photo" id="mwPhoto">
+        <div class="lay" id="ph0"><div class="bgblur"></div><img class="pic" alt=""></div>
+        <div class="lay" id="ph1"><div class="bgblur"></div><img class="pic" alt=""></div>
+        <span class="mw-badge">📷 PHOTO</span>
+        <button class="nav l" id="phPrev" type="button" aria-label="이전 사진">‹</button><button class="nav r" id="phNext" type="button" aria-label="다음 사진">›</button>
+        <div class="mw-cap"><span class="g" id="phG"></span><b id="phT"></b><span class="n" id="phN"></span></div>
       </div>
-      <div class="plist" id="vList"></div>
+      <div class="mw-pane mw-video" id="mwVideo">
+        <div class="lay" id="vd0"><video playsinline muted preload="metadata"></video></div>
+        <div class="lay" id="vd1"><video playsinline muted preload="metadata"></video></div>
+        <span class="mw-badge">🎬 VIDEO</span>
+        <div class="mw-cap"><span class="g" id="vdG"></span><b id="vdT"></b><span class="n" id="vdN"></span></div>
+        <div class="mw-ctl">
+          <button id="vdPrev" type="button" title="이전 영상" aria-label="이전 영상">⏮</button>
+          <button class="play" id="vdPlay" type="button" title="재생 / 정지" aria-label="재생 / 정지">⏸</button>
+          <button id="vdNext" type="button" title="다음 영상" aria-label="다음 영상">⏭</button>
+          <div class="prog"><i id="vdBar"></i></div>
+          <span class="vol"><button id="vdMute" type="button" title="소리 켜기 / 끄기" aria-label="소리 켜기 / 끄기">🔇</button><input type="range" id="vdVol" min="0" max="100" value="60" aria-label="음량"></span>
+        </div>
+      </div>
     </div>
-    <aside class="why">
+    <div class="mw-strip" id="mwStrip"><div class="mw-track" id="mwTrack"></div></div>
+  </section>
+  <aside class="why why-strip">
       <h3>출입관리의 핵심 <em>세 가지</em></h3>
       <p>출입 기록은 쌓일수록 가치가 커집니다. 누가 · 언제 · 어느 회사 소속으로 · 어느 부서를 방문했는지가 사람별 · 차량별로 이어져야 사고가 났을 때 바로 찾을 수 있습니다.</p>
       <div class="prin">
@@ -464,7 +544,6 @@ html[data-theme="dark"] .lnkb{color:#9DB0FF}
       </div>
       <div class="spiform"><b>동명이인 · 이직 구분</b> — 같은 이름은 연락처 · 소속으로 구분하고, A사에서 B사로 옮긴 사람도 한 사람의 출입 이력(소속 이력)으로 이어서 관리합니다.</div>
     </aside>
-  </section>
 
   <nav class="tabs" role="tablist" aria-label="메뉴">
     <button role="tab" data-tab="entry" aria-selected="true">🚪 출입 등록</button>

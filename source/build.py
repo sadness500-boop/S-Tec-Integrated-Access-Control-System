@@ -11,8 +11,7 @@ def scr(s): return s.replace('</script', '<\\/script')
 def uri(p, mime): return f'data:{mime};base64,' + base64.b64encode(open(p, 'rb').read()).decode()
 asset = json.loads(rd(V + 'assets-base.json'))
 asset['icon'] = uri(V + 'icon.png', 'image/png')        # 메인화면 좌측 상단 아이콘 · 앱 아이콘 (업로드 사진)
-asset['hero'] = uri(V + 'hero.jpg', 'image/jpeg')       # 메인화면 히어로(보안요원 디오라마 + 출입관리 아이콘)
-asset['thumbs'] = {f[:-4]: uri(ROOT + 'media/thumb/' + f, 'image/jpeg') for f in sorted(os.listdir(ROOT + 'media/thumb')) if f.endswith('.jpg')}
+asset['hero'] = uri(V + 'hero.jpg', 'image/jpeg')       # 메인화면 히어로(통합 출입관리 시스템 디오라마)
 asset['fig'] = {k: v for k, v in asset['fig'].items() if k in ('dio_sec', 'cute_sec', 'hq', 'mgr')}
 html = rd(S + 'index.html')
 APPJS = '\n'.join(rd(S + f) for f in ['app.js', 'ui.js', 'views.js', 'media.js', 'out.js', 'guide.js'])
