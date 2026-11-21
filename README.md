@@ -2,7 +2,7 @@
 
 <img src="icons/icon-192.png" width="96" alt="통합 출입관리 시스템 아이콘">
 
-**에스텍 그룹 통합 출입관리 시스템** · v1.0.7 · 통합관리 시스템 11번째 프로그램 (`stac`)
+**에스텍 그룹 통합 출입관리 시스템** · v1.0.8 · 통합관리 시스템 11번째 프로그램 (`stac`)
 
 > 공장 · 아파트 · 병원 · 빌딩 · 연수원 · 공사현장 등 **모든 종류의 사업장**에서 — 이름 초성 · 차량번호 앞 두 자리 · 업체명만 넣어도
 > 방문자와 방문차량의 누적 출입 DATA가 바로 나옵니다.
@@ -12,7 +12,7 @@
 | 구분 | 주소 |
 |---|---|
 | 웹 버전 | https://sadness500-boop.github.io/S-Tec-Integrated-Access-Control-System/ |
-| 파일 하나로 여는 배포본 | `releases/S-Tec-Integrated-Access-Control-System_v1.0.7.html` |
+| 파일 하나로 여는 배포본 | `releases/S-Tec-Integrated-Access-Control-System_v1.0.8.html` |
 | 안드로이드 앱 (최신) | https://github.com/sadness500-boop/S-Tec-Integrated-Access-Control-System/releases/download/app-latest/stac-latest.apk |
 
 - **APK는 GitHub Actions가 만듭니다.** `index.html` · `version.json`을 올리면 Actions 「Android APK」가 약 5분 뒤 `releases/`와 릴리스에 APK를 올립니다.
@@ -79,7 +79,7 @@ server/               Supabase SQL (supabase_stac.sql)
 supabase/functions/   회사 정보 서버 함수(선택)
 media/manual          매뉴얼 화면 (사진 · 영상은 통합관리 시스템 media/ 공용)
 icons/ · assets/      앱 아이콘 · 히어로
-docs/                 출력물 예시 · 사용자 매뉴얼 · 제작자 관리매뉴얼 (Word · PDF · PPT · PDF)
+docs/                 출력물 예시 · 사용자 매뉴얼 (제작자 관리매뉴얼은 서버 비공개 보관함 — 제작자만)
 .github/workflows/    안드로이드 앱 자동 빌드
 ```
 빌드: `python3 source/build.py`

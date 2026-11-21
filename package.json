@@ -1,6 +1,6 @@
 {
   "name": "s-tec-integrated-access-control-system",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "private": true,
   "description": "S-Tec Integrated Access Control System(통합 출입관리 시스템) — 안드로이드 앱 포장(Capacitor). Designed & Developed by Rat Rae Choi",
   "scripts": {

@@ -62,41 +62,22 @@ const MANUAL = {
         { table: { head: ['질문', '답'], rows: [['같은 이름이 두 명이에요', '연락처로 구분합니다. 등록할 때 「동명이인 확인」 창에서 고르면 각자 따로 쌓입니다.'], ['A회사에서 B회사로 옮겨 다시 왔어요', '같은 사람을 고르고 소속을 B회사로 넣으면 됩니다. 통합 화면 「소속 이력」에 A사 → B사로 남습니다.'], ['차량번호 뒷자리만 기억나요', '숫자 두 자리부터 앞자리 · 뒷자리 모두 찾습니다(예: 56 → 3456, 5678).'], ['업체 직원이 몇 명 왔는지 보고 싶어요', '검색 칸에 업체명 → 회사를 누르거나 DATA 조회 「회사 소속 명단」.'], ['인터넷이 끊겼어요', '이 기기에 저장되고, 연결되면 공유 서버로 올라갑니다.'], ['예전 출입 프로그램 기록을 옮기고 싶어요', '「⚙ 설정 · 연동」 맨 위 「🔌 기존 시스템 연동」 버튼 → 「① 가져오기」로 엑셀 · CSV를 불러옵니다.'], ['사업장 유형을 잘못 골랐어요', '「⚙ 설정 · 연동」 맨 위 「🏷 유형 바꾸기」에서 다시 고릅니다. 쌓인 출입 기록은 그대로 남습니다.'], ['아파트라 방문자 소속 회사가 없어요', '아파트 등 개인 방문이 많은 유형은 소속을 비워 두면 「개인」으로 저장됩니다.']] } }] }
     ]
   },
-  admin: {
-    title: '제작자 관리매뉴얼', en: 'Administrator Guide', file: '에스텍_통합출입관리시스템_제작자관리매뉴얼',
-    sub: '권한 · Supabase 서버 · 연동 · 보안 · 배포 · 유지보수',
-    sections: [
-      { h: '역할과 관리 구조', key: ['통합 로그인 — 11개 프로그램 같은 서버', '제작자 · 관리자 · 사용자', '권한은 통합관리 시스템 관리 콘솔에서', '프로그램 코드 stac'], img: 'm_launch', blocks: [
-        { p: '통합 출입관리 시스템은 통합관리 시스템의 11번째 프로그램(코드 stac, 메인 화면 맨 아래 카드)입니다. 계정 · 가입 승인 · 사용기한 · 기기 · 접속기록은 통합관리 시스템 「🛡️ 제작자 관리 콘솔」에서 한 번에 관리합니다.' },
-        { table: { head: ['역할', '출입관리 시스템에서'], rows: [['제작자(owner)', '모든 기능 · 공유 서버 전체 기록 · 수신 토큰 발급 · 기록 파기'], ['관리자(admin)', '모든 기능 · 공유 서버 전체 기록 · 수신 토큰 발급'], ['사용자(user)', '「프로그램별 권한」에서 stac 「사용」을 받아야 실행 · 자기 기록 + 지정된 담당 지사 기록']] } }] },
-      { h: 'Supabase 서버 준비', key: ['server/supabase_stac.sql', '프로그램 등록부 11번째(sort 110)', '공유 표 ac_records · 수신 토큰 ac_tokens', '다시 실행해도 안전'], blocks: [
-        { ol: ['Supabase → 통합 로그인 프로젝트 → SQL Editor', '저장소의 server/supabase_stac.sql 전체를 붙여넣고 Run', '마지막 확인 결과에 stac · 통합 출입관리 시스템 · 110 이 보이면 완료'] },
-        { table: { head: ['만드는 것', '내용'], rows: [['program_registry: stac', '통합관리 시스템 메인 화면 11번째(맨 아래) 카드'], ['app_access', 'stac 권한을 지정할 수 있게 허용'], ['ac_records 표', '방문자 · 차량 · 회사 · 출입 기록(종류 · id) — 표 직접 접근 차단(RLS), 함수로만'], ['ac_put · ac_list · ac_delete', '올리기 · 받기 · 지우기 — 권한 · 지사 범위 검사'], ['ac_tokens · ac_token_create · ac_ingest', '기존 장비 수신용 토큰(해시만 저장) · 발급(관리자) · 수신'], ['ac_purge', '보유기간 지난 출입 기록 서버 파기(관리자)']] } },
-        { tip: '확인: select code, name, sort from program_registry order by sort; → 마지막 줄 stac · 통합 출입관리 시스템 · 110' }] },
-      { h: '회사 정보 서버 함수(선택)', key: ['supabase/functions/ac-company', '카카오 지역검색 키는 서버 비밀값으로만', '없으면 위키백과 · 위키데이터로 동작', '로그인 사용자만 호출'], blocks: [
-        { p: '회사 주소 · 대표전화 · 업종을 더 많이 찾으려면 카카오 지역검색(REST API) 키를 서버 함수에 넣습니다. 키는 브라우저 · 저장소에 넣지 않고 Supabase 비밀값(Secrets)에만 둡니다.' },
-        { ol: ['Kakao Developers에서 앱을 만들고 REST API 키를 받습니다.', 'Supabase → Edge Functions → 「Deploy a new function」 → 이름 ac-company → 저장소 supabase/functions/ac-company/index.ts 내용을 붙여넣고 배포', 'Edge Functions → Secrets → KAKAO_REST_KEY = (REST API 키) 저장', '프로그램에서 회사 「🌐 인터넷에서 기본정보 찾기」 → 자료 출처에 「카카오 지역검색」이 보이면 완료'] }] },
-      { h: '기존 시스템 연동(서버 수신)', key: ['관리자가 사업장별 수신 토큰 발급', '토큰은 한 번만 표시 · 서버엔 해시', 'POST /rest/v1/rpc/ac_ingest', '받은 기록은 「☁ 서버 기록 받기」'], blocks: [
-        { ol: ['프로그램 「⚙ 설정 · 연동」 → 맨 위 「🔌 기존 시스템 연동」 버튼 → 「④ 서버 수신」에서 「🔑 수신 토큰 만들기」(제작자 · 관리자 로그인 필요)', '나온 토큰을 차량번호인식기 · 출입카드 서버 담당 업체에 전달(메일 · 메신저에 남기지 않도록 주의)', '장비가 아래 형식으로 보내면 공유 서버에 출입 기록이 쌓입니다', '현장 PC에서 「☁ 수신 기록 받기」 또는 DATA 조회 「☁ 서버 기록 받기」'] },
-        { p: 'POST https://(서버)/rest/v1/rpc/ac_ingest · 헤더 apikey: 공개 키 · 본문 {"p_token":"…","p_rows":[{"date":"2026-11-20","time_in":"09:12","time_out":"","plate":"12가3456","name":"","phone":"","company":"","dept":"","purpose":"납품","gate":"정문","badge":""}]} — 한 번에 최대 500행' },
-        { warn: '토큰이 유출되면 SQL Editor에서 update ac_tokens set active=false where label=\'…\'; 로 즉시 끄고 새로 발급하세요.' }] },
-      { h: '보안 · 정보 누출 방지', key: ['검색엔진 차단 · 리퍼러 차단', '외부 스크립트 · 분석 도구 없음', '표 직접 접근 차단(RLS) · 함수 권한 검사', '비밀값은 서버 · 이 기기에만'], blocks: [
-        { table: { head: ['항목', '적용 내용'], rows: [['웹 주소 노출', 'noindex · nofollow 메타, robots.txt 전체 차단'], ['리퍼러', 'no-referrer — 외부 링크로 프로그램 주소가 새지 않음'], ['콘텐츠 보안 정책(CSP)', '외부 스크립트 · 프레임 · 폼 전송 · object 차단, 라이브러리는 모두 파일 안에 포함'], ['공유 서버', 'ac_records RLS 사용 · 정책 없음(직접 조회 불가) · security definer 함수에서 승인 · 권한 · 지사 범위 검사'], ['계정 동기화', '출입 DATA는 user_data(계정 동기화)에 올리지 않음 — 화면 설정만'], ['비밀값', '카카오 키 = 서버 Secrets / 웹훅 토큰 · 잠금 PIN = 이 기기만(해시)'], ['외부 검색', '회사 이름만 전송(방문자 정보 전송 없음)'], ['출력물', '연락처 가림 · 「대외비 · 개인정보 포함」 표시'], ['공개 저장소', '실제 방문자 · 고객사 출입 자료를 넣지 않음 — 예시 자료는 모두 가상']] } },
-        { warn: 'service_role(secret) 키는 절대 저장소 · auth-config.json에 넣지 않습니다. auth-config.json의 publishable(anon) 키는 공개되어도 되는 키입니다.' }] },
-      { h: '사업장 유형 프로필 관리', key: ['source/profiles.js — 11가지 유형', '유형마다 방문처 · 목적 · 출입구 · 차종 · 확인 항목 · 항목 이름', 'sites.js 사업장 유형과 자동 연결', '새 유형 추가 → 빌드'], img: 'm_type', blocks: [
-        { p: '사업장 유형(공장 · 아파트 · 병원 · 오피스 빌딩 · 연수원 · 공사현장 · 학교 · 물류센터 · 공공기관 · 골프장 · 직접 구성)은 source/profiles.js의 SITE_PROFILES에 정의되어 있습니다. 현장에서 고르면 그 기기의 설정에 복사되므로, 프로필을 고쳐도 이미 쓰고 있는 기기의 목록은 바뀌지 않습니다(현장에서 「유형 바꾸기」로 다시 고르면 새 값 적용).' },
-        { table: { head: ['항목', '내용'], rows: [['key · icon · name · en · desc · ex', '구분 코드 · 아이콘 · 이름 · 영문 · 설명 · 선택 카드의 예시'], ['siteTypes', 'sites.js 사업장 유형(공장 · 아파트 · 병원 · 빌딩 · 연수원 · 학교 · 물류센타 · 관공서 · 골프장)과 연결 — 운영 사업장을 고르면 이 유형을 제안'], ['labels', '항목 이름(방문처 · 피방문자 · 목적 · 소속 · 출입구 · 반입 물품)'], ['gates · depts · purposes · vtypes', '출입구 · 방문처 · 방문 목적 · 차종 기본 목록'], ['checks', '입력 화면 확인 항목 2개(예: 발열 · 감염 증상 확인)'], ['coOpt', 'true면 소속 회사 선택 입력(비우면 「개인」)'], ['sampleCos', '예시 자료용 가상 회사 이름']] } },
-        { tip: '새 유형을 추가하려면 SITE_PROFILES에 항목을 하나 더 넣고 python3 source/build.py → 버전을 올려 push 합니다. 「custom(직접 구성)」은 항상 맨 끝에 둡니다.' }] },
-      { h: '배포 · 버전 올리기', key: ['source/ 수정 → python3 source/build.py', 'index.html · version.json 올리면 APK 자동 빌드', 'releases/ · 릴리스 app-latest', '통합관리 시스템 카드 버전 갱신'], blocks: [
-        { ol: ['source/의 app.js · profiles.js · views.js · out.js · guide.js 등을 고칩니다. 히어로 문구 서체(부분 글꼴)는 source/vendor/hero-fonts.css에 들어 있습니다.', '저장소 최상위에서 python3 source/build.py → index.html(한 파일)', 'source/app.js의 APP.version · version.json · package.json · manifest 버전을 함께 올립니다.', 'main에 push → GitHub Actions 「Android APK」가 약 5분 뒤 releases/와 릴리스(app-latest)에 APK를 올립니다.', '웹 주소가 열리지 않으면 Settings › Pages › Branch main /(root)를 켭니다.'] },
-        { p: '저장소: https://github.com/sadness500-boop/S-Tec-Integrated-Access-Control-System · 서명 키: android-keystore/stac-debug.keystore(같은 키로 덮어 설치)' }] },
-      { h: '데이터 관리 · 파기 · 백업', key: ['이 기기 한도 약 5MB(수만 건)', '공유 서버에 올리고 오래된 기록 파기', '보유기간 기본 3년', 'JSON 백업 · 복원'], blocks: [
-        { ul: ['「⚙ 설정 · 연동 › 백업」의 이 기기 사용량을 주기적으로 확인합니다.', '사업장 규정 보유기간(기본 3년)을 정하고 「보유기간 지난 기록 파기」를 분기마다 실행합니다. 서버는 select ac_purge(\'2023-11-20\'); (관리자)로 파기합니다.', '전체 백업(JSON)은 개인정보 파일이므로 암호가 걸린 사내 저장소에만 보관합니다.'] }] },
-      { h: '문제 해결', key: ['공유 서버: 준비 전', '권한 없음 화면', '회사 정보가 안 나옴', '앱이 예전 화면'], blocks: [
-        { table: { head: ['증상', '원인 · 조치'], rows: [['☁ 공유 서버: 준비 전', 'server/supabase_stac.sql 미실행 — SQL 실행'], ['🔒 권한 없음', '관리 콘솔 「프로그램별 권한」에서 출입 관리(stac) 사용 지정'], ['통합관리 메인에 카드가 없음', 'program_registry에 stac 확인(SQL 재실행) 또는 메인 프로그램 새 버전'], ['회사 정보를 못 찾음', '작은 회사는 공개 정보가 없음 — 서버 함수(카카오) 설정 또는 직접 입력'], ['웹훅 전송 실패', '받는 서버가 https · CORS 허용인지 확인(사내 http 장비는 중계 필요)'], ['저장 공간 부족 안내', '공유 서버에 올린 뒤 오래된 기록 파기 · 백업'], ['앱이 예전 화면', '웹은 새로고침, 앱은 stac-latest.apk 재설치']] } }] }
-    ]
-  }
+  /* 제작자 관리매뉴얼은 공개 파일에 넣지 않습니다 — 서버의 제작자 전용 보관함(owner-docs)에서 제작자 계정에게만 불러옵니다 */
+  admin: null
 };
+
+/* ---------- 제작자 관리매뉴얼 — 제작자만 (서버 비공개 보관함 owner-docs/stac/admin-guide.json) ---------- */
+function isOwnerUser() { const p = window.STAC_AUTH && STAC_AUTH.profile; return !!(p && p.role === 'owner'); }
+async function loadOwnerManual() {
+  if (MANUAL.admin) return true;
+  if (!isOwnerUser()) { toast('제작자 관리매뉴얼은 제작자만 볼 수 있습니다'); return false; }
+  try {
+    const c = window.STAC_AUTH && STAC_AUTH.client; if (!c || !c.storage) throw new Error('로그인이 필요합니다');
+    const { data, error } = await c.storage.from('owner-docs').download('stac/admin-guide.json');
+    if (error || !data) throw new Error((error && error.message) || '없음');
+    MANUAL.admin = JSON.parse(await data.text()); return true;
+  } catch (e) { toast('제작자 관리매뉴얼을 불러오지 못했습니다: ' + (e.message || e)); return false; }
+}
 /* ---------- 매뉴얼 화면 사진 (media/manual/*.jpg — 없으면 사진 없이) ---------- */
 const MAN_IMG = {};
 async function manualImgs(kind) {
@@ -155,6 +136,7 @@ function manualSlides(kind) {
   return S;
 }
 async function outManual(kind, fmt) {
+  if (kind === 'admin' && !(await loadOwnerManual())) return;
   busy(true, `${MANUAL[kind].title} 만드는 중…`);
   try {
     await manualImgs(kind);
@@ -168,13 +150,14 @@ async function outManual(kind, fmt) {
   } catch (e) { console.error(e); toast('만들지 못했습니다: ' + (e.message || e), 5000); } finally { busy(false); }
 }
 /* ---------- 프로그램 안 매뉴얼 창 ---------- */
-function openManual(kind) {
-  if (kind === 'admin' && !isAdminUser() && !window.__STAC_DOCGEN) return toast('제작자 관리매뉴얼은 제작자 · 관리자만 볼 수 있습니다');
+async function openManual(kind) {
+  if (kind === 'admin' && !(await loadOwnerManual())) return;
+  
   const M = MANUAL[kind];
   const html = M.sections.map((s, i) => `<section id="man${i}" style="margin-bottom:18px"><h3 style="margin:0 0 6px;color:var(--nv)">${i + 1}. ${esc(s.h)}</h3><ul class="hl" style="margin-bottom:8px">${s.key.map(k => `<li>${esc(k)}</li>`).join('')}</ul>
     ${s.blocks.map(b => b.p ? `<p style="font-size:13.5px">${esc(b.p)}</p>` : b.ol ? `<ol style="font-size:13.5px;padding-left:20px">${b.ol.map(x => `<li>${esc(x)}</li>`).join('')}</ol>` : b.ul ? `<ul style="font-size:13.5px;padding-left:20px">${b.ul.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : b.table ? `<div class="tblw" style="margin:6px 0"><table class="t" style="min-width:0"><thead><tr>${b.table.head.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${b.table.rows.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : b.tip ? `<p class="spiform">💡 ${esc(b.tip)}</p>` : b.warn ? `<p class="spiform" style="background:#FFF4E5">⚠ ${esc(b.warn)}</p>` : '').join('')}</section>`).join('');
   openModal(`<h2>📘 ${esc(M.title)} <small class="hint">${esc(M.en)} · ${APP.version}</small></h2><div class="sub">${esc(M.sub)}</div>
-    <div class="row" style="margin-bottom:10px">${kind === 'user' ? (isAdminUser() ? '<button class="btn sm" id="mnOther">🛡️ 제작자 관리매뉴얼</button>' : '') : '<button class="btn sm" id="mnOther">👤 사용자 매뉴얼</button>'}<button class="btn sm bw" style="color:#fff;border:0" data-mf="docx">⬇ Word</button><button class="btn sm bp" style="color:#fff;border:0" data-mf="pptx">⬇ PPT</button><button class="btn sm bf" style="color:#fff;border:0" data-mf="pdf">⬇ PDF</button></div>
+    <div class="row" style="margin-bottom:10px">${kind === 'user' ? (isOwnerUser() ? '<button class="btn sm" id="mnOther">🛡️ 제작자 관리매뉴얼</button>' : '') : '<button class="btn sm" id="mnOther">👤 사용자 매뉴얼</button>'}<button class="btn sm bw" style="color:#fff;border:0" data-mf="docx">⬇ Word</button><button class="btn sm bp" style="color:#fff;border:0" data-mf="pptx">⬇ PPT</button><button class="btn sm bf" style="color:#fff;border:0" data-mf="pdf">⬇ PDF</button></div>
     <div class="row" style="margin-bottom:10px">${M.sections.map((s, i) => `<a class="chip" href="#man${i}">${i + 1}. ${esc(s.h)}</a>`).join('')}</div>
     <div style="max-height:62vh;overflow:auto;padding-right:6px">${html}</div>
     <div class="mrow"><a class="btn" href="${APP.repo}#readme" target="_blank" rel="noopener">GitHub 안내</a><button class="btn pri" id="mClose">닫기</button></div>`, md => {
