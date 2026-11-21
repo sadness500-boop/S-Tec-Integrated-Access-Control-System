@@ -17,7 +17,7 @@ asset['fig'] = {k: v for k, v in asset['fig'].items() if k in ('dio_sec', 'cute_
 html = rd(S + 'index.html')
 APPJS = '\n'.join(rd(S + f) for f in ['app.js', 'profiles.js', 'ui.js', 'views.js', 'media.js', 'out.js', 'guide.js'])
 LIBS = rd(V + 'libs.html') + '\n<script>/* ExcelJS (MIT) */\n' + scr(rd(V + 'exceljs.min.js')) + '\n</script>'
-for ph, val in [('<!--LIBS-->', LIBS), ('<!--QR-->', rd(V + 'qr.html')),
+for ph, val in [('<!--LIBS-->', LIBS), ('<!--QR-->', rd(V + 'qr.html')), ('/*HEROFONTS*/', rd(V + 'hero-fonts.css')),
                 ('/*ASSETS*/', 'const ASSET=' + json.dumps(asset, ensure_ascii=False) + ';'),
                 ('/*HF*/', scr(rd(S + 'hf.js'))), ('/*SITES*/', scr(rd(S + 'sites.js'))),
                 ('/*APP*/', scr(APPJS)), ('<!--AUTHCSS-->', rd(V + 'auth-css.html')),

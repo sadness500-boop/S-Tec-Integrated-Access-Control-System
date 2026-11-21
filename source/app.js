@@ -10,7 +10,7 @@ const APP = {
   name: 'S-Tec Integrated Access Control System',
   ko: '통합 출입관리 시스템',
   code: 'stac',
-  version: 'v1.0.5',
+  version: 'v1.0.6',
   build: '2026-11-20',
   shareUrl: 'https://sadness500-boop.github.io/S-Tec-Integrated-Access-Control-System/',
   apkUrl: 'https://github.com/sadness500-boop/S-Tec-Integrated-Access-Control-System/releases/download/app-latest/stac-latest.apk',

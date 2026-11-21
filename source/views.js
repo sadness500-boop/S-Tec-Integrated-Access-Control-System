@@ -489,44 +489,52 @@ function renderReport() {
  * ===================================================================== */
 function renderSet() {
   const c = AC.cfg, H = c.hook || {};
-  $('#p-set').innerHTML = `<div class="two">
-  <div>
-  <section class="card" style="--c:#7A2E8E"><h2>🏷 사업장 유형</h2><div class="body"><div class="row" style="align-items:center"><span style="font-size:30px">${curProf().icon}</span><div style="flex:1"><b>${esc(AC.cfg.siteType ? curProf().name : '미선택(공장 기본값 사용 중)')}</b><div class="hint">${esc(curProf().desc)}</div></div><button class="btn pri" id="tyChg">유형 바꾸기</button></div></div></section>
-  <section class="card"><h2>🏭 운영 사업장</h2><div class="body"><div class="grid2"><div class="field"><label>에스텍베스트 사업장에서 고르기</label><select id="sSite"><option value="">— 직접 입력 —</option>${['동부', '서부', '남부', '중부'].map(br => `<optgroup label="${br}지사">${SITE_LIST.filter(s => s.br === br).map(s => `<option value="${s.key}" ${c.site.key === s.key ? 'selected' : ''}>${esc(s.name)} (${esc(s.type)})</option>`).join('')}</optgroup>`).join('')}</select></div>
-   <div class="field"><label>사업장 이름</label><input id="sSiteN" value="${esc(c.site.name || '')}"></div></div><button class="btn pri" id="sSiteOk">저장</button><p class="hint">이 기기(보안실 PC · 태블릿)가 출입을 처리하는 사업장입니다. 공유 서버에서는 지사 단위로 권한이 나뉩니다.</p></div></section>
-  <section class="card"><h2>🧩 목록 · 항목 커스터마이징</h2><div class="body">
-   <div class="grid2">${[['gates', '출입구'], ['depts', '방문부서'], ['purposes', '방문 목적(업무)'], ['vtypes', '차종']].map(([k, n]) => `<div class="field"><label>${n} (한 줄에 하나)</label><textarea id="ls_${k}" rows="5">${esc(c[k].join('\n'))}</textarea></div>`).join('')}</div>
-   <h3 style="margin:8px 0 4px;font-size:14px">항목 이름 바꾸기 (사업장 용어에 맞춤)</h3><div class="grid2">${['name', 'co', 'dept', 'host', 'purpose', 'gate', 'badge', 'items', 'plate'].map(k => `<div class="field"><label>${esc({ name: '성명', co: '소속 회사', dept: '방문부서', host: '피방문자(담당)', purpose: '방문 목적(업무)', gate: '출입구', badge: '출입증 번호', items: '반입 물품', plate: '차량번호' }[k])}</label><input id="lb_${k}" value="${esc((c.labels || {})[k] || '')}" placeholder="기본 이름 그대로"></div>`).join('')}</div>
-   <div class="row"><label class="row" style="flex-direction:row"><input type="checkbox" id="rq_phone" ${c.required.phone ? 'checked' : ''}> 연락처 필수</label><label class="row" style="flex-direction:row"><input type="checkbox" id="rq_host" ${c.required.host ? 'checked' : ''}> 피방문자 필수</label><label class="row" style="flex-direction:row"><input type="checkbox" id="rq_badge" ${c.required.badge ? 'checked' : ''}> 출입증 번호 필수</label></div>
-   <button class="btn pri" id="lsOk" style="margin-top:8px">저장</button></div></section>
-  <section class="card" style="--c:#C53A3A"><h2>🔒 개인정보 · 보안</h2><div class="body">
-   <label class="row" style="flex-direction:row"><input type="checkbox" id="pvMask" ${c.maskPhone ? 'checked' : ''}> 목록 · 출력물에서 연락처 가림(010-****-1234)</label>
-   <div class="grid2" style="margin-top:8px"><div class="field"><label>개인정보 보유기간(년)</label><input type="number" id="pvY" min="1" max="10" value="${c.retainY}"></div><div class="field"><label>화면 자동 잠금(분, 0 = 끔)</label><input type="number" id="pvLock" min="0" max="120" value="${c.lockMin || 0}"></div>
-   <div class="field"><label>잠금 비밀번호(PIN, 이 기기만)</label><input type="password" id="pvPin" inputmode="numeric" autocomplete="new-password" placeholder="${SECRET.pinHash ? '설정됨 — 바꾸려면 입력' : '4자리 이상'}"></div></div>
-   <div class="row"><button class="btn pri" id="pvOk">저장</button><button class="btn warn" id="pvPurge">보유기간 지난 기록 파기</button></div>
-   <p class="hint">· 웹 주소는 검색엔진에 노출되지 않도록 막았습니다(noindex) · 외부 스크립트 · 분석 도구 없음(모두 파일 안에 포함) · 회사 정보 검색에는 회사 이름만 보냅니다 · 웹훅 토큰 · 잠금 PIN은 이 기기에만 저장되어 서버 · 다른 기기로 가지 않습니다 · 공유 서버 표는 직접 조회가 막혀 있고 권한 검사 함수로만 주고받습니다.</p></div></section>
-  </div><div>
-  <section class="card" style="--c:var(--gr)"><h2>🔌 기존 시스템 연동 (커스터마이징)</h2><div class="body">
-   <h3 style="margin:0 0 6px;font-size:14px">① 가져오기 — 기존 출입 · 차량인식(LPR) · 출입카드 · 방문예약 기록(엑셀 · CSV)</h3>
-   <div class="row"><input type="file" id="imFile" accept=".xlsx,.csv,.txt"><select id="imProf" style="width:auto"><option value="">저장된 열 맞춤 없음</option>${Object.keys(c.maps || {}).map(k => `<option>${esc(k)}</option>`).join('')}</select></div><div id="imMap"></div>
-   <h3 style="margin:12px 0 6px;font-size:14px">② 내보내기 — 기존 시스템이 읽는 형식</h3>
-   <div class="row"><button class="btn" id="exCsv">CSV(현재 DATA 조건)</button><button class="btn" id="exXlsx">엑셀(현재 DATA 조건)</button><button class="btn" id="exJson">JSON</button></div>
-   <h3 style="margin:12px 0 6px;font-size:14px">③ 웹훅 — 입실 · 퇴실 즉시 기존 시스템으로 전송(POST JSON)</h3>
-   <div class="grid2"><div class="field"><label>받는 주소(URL)</label><input id="hkUrl" value="${esc(H.url || '')}" placeholder="https://사내서버/api/visit"></div><div class="field"><label>인증 토큰(이 기기에만 저장)</label><input id="hkTok" type="password" autocomplete="off" placeholder="${SECRET.hookToken ? '설정됨' : 'Bearer 토큰(선택)'}"></div></div>
-   <div class="row"><label class="row" style="flex-direction:row"><input type="checkbox" id="hkOn" ${H.on ? 'checked' : ''}> 사용</label><button class="btn pri" id="hkOk">저장</button><button class="btn" id="hkTest">시험 전송</button><span class="hint">${H.last ? '마지막 전송 ' + esc(String(H.last).slice(0, 16).replace('T', ' ')) : ''}${H.err ? ' · 오류 ' + esc(H.err) : ''}</span></div>
-   <p class="hint">보내는 값: 일자 · 시각 · 성명 · 회사 · 차량번호 · 부서 · 목적 · 출입구 · 출입증, 연락처는 뒤 4자리만. 사내망(http) 장비는 브라우저 보안 정책상 https 중계가 필요할 수 있습니다.</p>
-   <h3 style="margin:12px 0 6px;font-size:14px">④ 서버 수신 — 기존 장비가 공유 서버로 직접 기록을 넣음</h3>
-   <p class="hint">제작자 · 관리자가 이 사업장용 수신 토큰을 만들면, 차량번호인식기 · 출입카드 서버가 아래 형식으로 보내 기록이 쌓입니다(토큰은 만들 때 한 번만 보이며 서버에는 암호화 해시만 저장).</p>
-   <div class="row"><button class="btn" id="tkNew">🔑 수신 토큰 만들기</button><button class="btn" id="tkPull">☁ 수신 기록 받기</button></div>
-   <div class="code" id="tkCode">POST ${esc((window.STAC_AUTH && STAC_AUTH.cfg && STAC_AUTH.cfg.supabaseUrl) || 'https://(서버 주소)')}/rest/v1/rpc/ac_ingest
+  const P = curProf(), open = !!V.intg, hkSt = [H.on && H.url ? '웹훅 사용 중' : '', Object.keys(c.maps || {}).length ? `열 맞춤 ${Object.keys(c.maps).length}개` : ''].filter(Boolean).join(' · ');
+  $('#p-set').innerHTML = `
+  <section class="card sethead" style="--c:#7A2E8E"><div class="shg">
+   <div class="shz shty"><span class="shico">${P.icon}</span><div style="min-width:0"><small class="k">사업장 유형</small><b>${esc(AC.cfg.siteType ? P.name : '미선택(공장 기본값 사용 중)')}</b><p>${esc(P.desc)}</p><button class="btn" id="tyChg">🏷 유형 바꾸기</button></div></div>
+   <div class="shz shsite"><small class="k">운영 사업장</small><div class="shrow"><select id="sSite" aria-label="에스텍베스트 사업장에서 고르기"><option value="">— 직접 입력 —</option>${['동부', '서부', '남부', '중부'].map(br => `<optgroup label="${br}지사">${SITE_LIST.filter(s => s.br === br).map(s => `<option value="${s.key}" ${c.site.key === s.key ? 'selected' : ''}>${esc(s.name)} (${esc(s.type)})</option>`).join('')}</optgroup>`).join('')}</select>
+     <input id="sSiteN" value="${esc(c.site.name || '')}" placeholder="사업장 이름" aria-label="사업장 이름"><button class="btn pri" id="sSiteOk">저장</button></div>
+     <p class="hint">이 기기(보안실 PC · 태블릿)가 출입을 처리하는 사업장 — 에스텍베스트 사업장에서 고르거나 이름을 직접 넣습니다. 공유 서버에서는 지사 단위로 권한이 나뉩니다.</p></div>
+   <button class="shz intgbtn ${open ? 'on' : ''}" id="intgTog" type="button" aria-expanded="${open}" aria-controls="intgPanel"><span class="ib">🔌</span><span><b>기존 시스템 연동 (커스터마이징)</b><small>가져오기 · 내보내기 · 웹훅 · 서버 수신</small>${hkSt ? `<span class="st">${esc(hkSt)}</span>` : ''}</span><span class="chev">▾</span></button>
+  </div></section>
+  <section class="card intgp ${open ? '' : 'hidden'}" id="intgPanel" style="--c:var(--gr)"><h2>🔌 기존 시스템 연동 (커스터마이징) <span class="r">기존 출입 · 차량번호인식(LPR) · 출입카드 · 방문예약 시스템과 주고받기 <button class="btn sm" id="intgClose" type="button">접기 ▴</button></span></h2><div class="body"><div class="igrid">
+   <div class="ig"><h3><span class="no">1</span>가져오기 <small>기존 기록(엑셀 · CSV)</small></h3>
+    <div class="row"><input type="file" id="imFile" accept=".xlsx,.csv,.txt"><select id="imProf" style="width:auto"><option value="">저장된 열 맞춤 없음</option>${Object.keys(c.maps || {}).map(k => `<option>${esc(k)}</option>`).join('')}</select></div><div id="imMap"></div>
+    <p class="hint">기존 출입 · 차량인식 · 출입카드 · 방문예약 기록 파일을 고르면 열을 맞춰 누적 DATA로 합칩니다. 맞춘 열은 이름을 붙여 저장해 다음에 그대로 씁니다.</p></div>
+   <div class="ig"><h3><span class="no">2</span>내보내기 <small>기존 시스템이 읽는 형식</small></h3>
+    <div class="row"><button class="btn" id="exCsv">CSV(현재 DATA 조건)</button><button class="btn" id="exXlsx">엑셀(현재 DATA 조건)</button><button class="btn" id="exJson">JSON</button></div>
+    <p class="hint">「🗂 DATA 조회 · 관리」에 걸어 둔 기간 · 구분 · 부서 · 회사 조건 그대로 내보냅니다.</p></div>
+   <div class="ig"><h3><span class="no">3</span>웹훅 <small>입실 · 퇴실 즉시 전송(POST JSON)</small></h3>
+    <div class="grid2"><div class="field"><label>받는 주소(URL)</label><input id="hkUrl" value="${esc(H.url || '')}" placeholder="https://사내서버/api/visit"></div><div class="field"><label>인증 토큰(이 기기에만 저장)</label><input id="hkTok" type="password" autocomplete="off" placeholder="${SECRET.hookToken ? '설정됨' : 'Bearer 토큰(선택)'}"></div></div>
+    <div class="row"><label class="row" style="flex-direction:row"><input type="checkbox" id="hkOn" ${H.on ? 'checked' : ''}> 사용</label><button class="btn pri" id="hkOk">저장</button><button class="btn" id="hkTest">시험 전송</button><span class="hint">${H.last ? '마지막 전송 ' + esc(String(H.last).slice(0, 16).replace('T', ' ')) : ''}${H.err ? ' · 오류 ' + esc(H.err) : ''}</span></div>
+    <p class="hint">보내는 값: 일자 · 시각 · 성명 · 회사 · 차량번호 · 부서 · 목적 · 출입구 · 출입증, 연락처는 뒤 4자리만. 사내망(http) 장비는 https 중계가 필요할 수 있습니다.</p></div>
+   <div class="ig"><h3><span class="no">4</span>서버 수신 <small>기존 장비 → 공유 서버 직접 기록</small></h3>
+    <div class="row"><button class="btn" id="tkNew">🔑 수신 토큰 만들기</button><button class="btn" id="tkPull">☁ 수신 기록 받기</button></div>
+    <div class="code" id="tkCode" style="margin-top:8px">POST ${esc((window.STAC_AUTH && STAC_AUTH.cfg && STAC_AUTH.cfg.supabaseUrl) || 'https://(서버 주소)')}/rest/v1/rpc/ac_ingest
 apikey: (공개 키)   Content-Type: application/json
 {"p_token":"(수신 토큰)","p_rows":[{"date":"2026-11-20","time_in":"09:12","plate":"12가3456","name":"","company":"","dept":"","purpose":"납품","gate":"정문"}]}</div>
-  </div></section>
-  <section class="card"><h2>💾 백업 · 예시 · 공유 서버</h2><div class="body">
+    <p class="hint">제작자 · 관리자가 사업장용 수신 토큰을 만들면 차량번호인식기 · 출입카드 서버가 위 형식으로 보내 기록이 쌓입니다(토큰은 만들 때 한 번만 보이며 서버에는 암호화 해시만 저장).</p></div>
+  </div></div></section>
+  <div class="setgrid">
+  <section class="card" style="--c:#E8750A"><h2>🧩 목록 · 항목 커스터마이징 <span class="r">${P.icon} ${esc(P.name)} 기본값에서 사업장에 맞게 고칩니다</span></h2><div class="body">
+   <div class="grid4">${[['gates', L('gate')], ['depts', L('dept')], ['purposes', L('purpose')], ['vtypes', '차종']].map(([k, n]) => `<div class="field"><label>${esc(n)} (한 줄에 하나)</label><textarea id="ls_${k}" rows="7">${esc(c[k].join('\n'))}</textarea></div>`).join('')}</div>
+   <h3 class="setsub">항목 이름 바꾸기 (사업장 용어에 맞춤)</h3><div class="grid3">${['name', 'co', 'dept', 'host', 'purpose', 'gate', 'badge', 'items', 'plate'].map(k => `<div class="field"><label>${esc({ name: '성명', co: '소속 회사', dept: '방문부서', host: '피방문자(담당)', purpose: '방문 목적(업무)', gate: '출입구', badge: '출입증 번호', items: '반입 물품', plate: '차량번호' }[k])}</label><input id="lb_${k}" value="${esc((c.labels || {})[k] || '')}" placeholder="기본 이름 그대로"></div>`).join('')}</div>
+   <div class="row" style="align-items:center;margin-top:4px"><label class="row" style="flex-direction:row"><input type="checkbox" id="rq_phone" ${c.required.phone ? 'checked' : ''}> 연락처 필수</label><label class="row" style="flex-direction:row"><input type="checkbox" id="rq_host" ${c.required.host ? 'checked' : ''}> 피방문자 필수</label><label class="row" style="flex-direction:row"><input type="checkbox" id="rq_badge" ${c.required.badge ? 'checked' : ''}> 출입증 번호 필수</label><button class="btn pri" id="lsOk" style="margin-left:auto">저장</button></div></div></section>
+  <div>
+  <section class="card" style="--c:#C53A3A"><h2>🔒 개인정보 · 보안</h2><div class="body">
+   <label class="row" style="flex-direction:row"><input type="checkbox" id="pvMask" ${c.maskPhone ? 'checked' : ''}> 목록 · 출력물에서 연락처 가림(010-****-1234)</label>
+   <div class="grid3" style="margin-top:8px"><div class="field"><label>보유기간(년)</label><input type="number" id="pvY" min="1" max="10" value="${c.retainY}"></div><div class="field"><label>자동 잠금(분, 0=끔)</label><input type="number" id="pvLock" min="0" max="120" value="${c.lockMin || 0}"></div>
+   <div class="field"><label>잠금 PIN(이 기기만)</label><input type="password" id="pvPin" inputmode="numeric" autocomplete="new-password" placeholder="${SECRET.pinHash ? '설정됨' : '4자리 이상'}"></div></div>
+   <div class="row"><button class="btn pri" id="pvOk">저장</button><button class="btn warn" id="pvPurge">보유기간 지난 기록 파기</button></div>
+   <p class="hint">· 검색엔진 노출 차단(noindex) · 외부 스크립트 · 분석 도구 없음 · 회사 정보 검색에는 회사 이름만 전송 · 웹훅 토큰 · 잠금 PIN은 이 기기에만 저장 · 공유 서버 표는 직접 조회가 막혀 있고 권한 검사 함수로만 주고받습니다.</p></div></section>
+  <section class="card" style="--c:#0E7C86"><h2>💾 백업 · 예시 · 공유 서버</h2><div class="body">
    <div class="row"><button class="btn" id="bkOut">⬇ 전체 백업(JSON)</button><label class="btn" for="bkIn">⬆ 복원</label><input type="file" id="bkIn" accept=".json" hidden><button class="btn" id="smIn">예시 자료 넣기</button><button class="btn warn" id="smOut">예시 자료 지우기</button></div>
    <div class="row" style="margin-top:8px"><button class="btn" id="shPush">☁ 이 기기 기록 모두 올리기</button><button class="btn" id="shPull">☁ 서버 기록 받기(전체)</button><span class="hint" id="shSt"></span></div>
    <p class="hint">이 기기 저장: 방문자 ${nf(Object.keys(AC.people).length)}명 · 차량 ${nf(Object.keys(AC.cars).length)}대 · 회사 ${nf(Object.keys(AC.cos).length)}곳 · 출입 ${nf(Object.keys(AC.visits).length)}건 · 약 ${nf(storeBytes() / 1048576, 1)}MB (브라우저 한도 약 5MB — 넘기 전에 공유 서버에 올리고 오래된 기록을 파기하세요)</p></div></section>
   </div></div>`;
+  const intg = on => { V.intg = on; $('#intgPanel').classList.toggle('hidden', !on); const b = $('#intgTog'); b.classList.toggle('on', on); b.setAttribute('aria-expanded', on); if (on) $('#intgPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); };
+  $('#intgTog').onclick = () => intg(!V.intg); $('#intgClose').onclick = () => { intg(false); $('#intgTog').focus(); };
   $('#shSt').textContent = $('#shareState') ? $('#shareState').textContent : '';
   $('#tyChg').onclick = () => openTypePicker(false);
   $('#sSite').onchange = e => { const s = SITE_LIST.find(x => x.key === e.target.value); if (!s) return; $('#sSiteN').value = s.name; const p = profForSiteType(s.type); if (p && p.key !== AC.cfg.siteType && confirmBox(`「${s.name}」은 ${s.type} 사업장입니다. 사업장 유형을 「${p.name}」으로 바꿀까요?`)) { applyProfile(p.key); toast(`${p.icon} ${p.name} 유형을 적용했습니다`); } };

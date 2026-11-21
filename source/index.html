@@ -10,10 +10,11 @@
 <title>S-Tec Integrated Access Control System · 통합 출입관리 시스템</title>
 <meta name="description" content="에스텍 통합 출입관리 시스템 — 방문자 · 방문차량 출입 등록과 누적 DATA 관리">
 <meta name="theme-color" content="#0C2350">
-<link rel="manifest" href="manifest.webmanifest?v=1.0.5">
-<link rel="icon" href="icons/favicon-48.png?v=1.0.5">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.0.5">
+<link rel="manifest" href="manifest.webmanifest?v=1.0.6">
+<link rel="icon" href="icons/favicon-48.png?v=1.0.6">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.0.6">
 <style>
+/*HEROFONTS*/
 /* =====================================================================
    S-Tec Integrated Access Control System — 화면 디자인
    기본 베이스: 통합관리 시스템 메인 화면 · 에스텍 11개 프로그램 공통 디자인
@@ -496,6 +497,54 @@ html[data-theme="dark"] .lnkb{color:#9DB0FF}
 #lockScr.hidden{display:none}
 #lockScr .gate{max-width:380px;text-align:center}
 .priv{font-size:11.5px;color:var(--mute);background:var(--soft);border:1px dashed var(--line);border-radius:10px;padding:7px 10px;margin-top:8px}
+/* ---------- v1.0.6 히어로 문구 ---------- */
+.hero h1.hx{font-family:'StacHeroKo',var(--font);display:flex;flex-direction:column;gap:2px;margin:12px 0 10px;font-size:clamp(25px,2.45vw,38px);line-height:1.18;letter-spacing:-.045em;color:var(--ink)}
+.hero h1.hx .l1{font-weight:300;color:var(--ink2)}
+.hero h1.hx .l1 em{font-weight:800;font-style:normal}
+.hero h1.hx .l2{font-weight:800}
+.hero h1.hx u{text-decoration:none;position:relative;z-index:0;white-space:nowrap}
+.hero h1.hx u::after{content:"";position:absolute;left:-2px;right:-2px;bottom:.06em;height:.3em;z-index:-1;border-radius:3px;background:linear-gradient(90deg,rgba(44,160,90,.30),rgba(42,68,212,.22))}
+html[data-theme="dark"] .hero h1.hx u::after{background:linear-gradient(90deg,rgba(76,208,122,.28),rgba(143,164,255,.24))}
+.hero .hen{display:flex;align-items:center;gap:10px;margin:2px 0 0;font-family:'StacHeroEn',"Cormorant Garamond",Georgia,"Times New Roman",serif;font-style:italic;font-weight:500;font-size:clamp(15px,1.3vw,19.5px);line-height:1.3;letter-spacing:.005em;color:#3B4A7A;flex-wrap:wrap}
+.hero .hen span{color:var(--gr)}
+.hero .hen i{flex:none;width:34px;height:1.5px;background:linear-gradient(90deg,var(--gr2),var(--nv2));border-radius:2px}
+html[data-theme="dark"] .hero .hen{color:#B8C2E6}html[data-theme="dark"] .hero .hen span{color:#6FDB95}
+/* ---------- v1.0.6 설정 · 연동 배치 ---------- */
+.sethead{overflow:visible}
+.shg{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1.35fr) minmax(250px,.9fr);align-items:stretch}
+.shz{padding:18px 20px;min-width:0}
+.shz+.shz{border-left:1px solid var(--line)}
+.shz .k{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--mute);margin-bottom:4px}
+.shty{display:flex;gap:14px;align-items:flex-start}
+.shty .shico{font-size:40px;line-height:1;flex:none;width:62px;height:62px;display:grid;place-items:center;border-radius:18px;background:color-mix(in srgb,#7A2E8E 9%,var(--panel));border:1px solid var(--line)}
+.shty b{font-size:18px;letter-spacing:-.03em;display:block}
+.shty p{margin:3px 0 10px;font-size:12.5px;color:var(--mute);line-height:1.5}
+.shrow{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) auto;gap:8px;align-items:center}
+.shrow select,.shrow input{margin:0}
+.shsite .hint{margin:8px 0 0}
+.intgbtn{display:flex;align-items:center;gap:14px;text-align:left;width:100%;border:0;cursor:pointer;color:#fff;font-family:inherit;border-radius:0 22px 22px 0;
+  background:linear-gradient(135deg,#0B1F8A 0%,#1E3AB8 55%,#1B7A34 130%);transition:filter .15s}
+.intgbtn:hover{filter:brightness(1.08)}
+.intgbtn .ib{font-size:26px;width:52px;height:52px;flex:none;display:grid;place-items:center;border-radius:16px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22)}
+.intgbtn b{display:block;font-size:15.5px;letter-spacing:-.02em}
+.intgbtn small{display:block;font-size:12px;opacity:.82;margin-top:2px}
+.intgbtn .st{display:inline-block;margin-top:6px;font-size:10.5px;font-weight:700;background:rgba(255,255,255,.16);border-radius:999px;padding:2px 8px}
+.intgbtn .chev{margin-left:auto;font-size:18px;transition:transform .2s}
+.intgbtn.on .chev{transform:rotate(180deg)}
+.intgp{animation:igIn .22s ease}
+@keyframes igIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.igrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ig{border:1px solid var(--line);border-radius:16px;padding:14px 16px;background:var(--soft);min-width:0}
+.ig h3{margin:0 0 10px;font-size:14px;display:flex;gap:8px;align-items:baseline}
+.ig h3 .no{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;color:#fff;background:var(--nv2)}
+.ig h3 small{font-weight:500;color:var(--mute);font-size:12px}
+.ig .hint{margin:8px 0 0}
+.setgrid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:16px;align-items:start}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 10px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 10px}
+.setsub{margin:14px 0 6px;font-size:13.5px;padding-top:12px;border-top:1px dashed var(--line)}
+@media(max-width:1180px){.shg{grid-template-columns:1fr 1fr}.intgbtn{grid-column:1/-1;border-radius:0 0 22px 22px}.shz.intgbtn{border-left:0}.grid4{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){.shg,.setgrid,.igrid{grid-template-columns:1fr}.shz+.shz{border-left:0;border-top:1px solid var(--line)}.shrow{grid-template-columns:1fr}.grid3{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -515,8 +564,8 @@ html[data-theme="dark"] .lnkb{color:#9DB0FF}
   <section class="hero">
     <div class="hero-txt">
       <span class="eyebrow"><i></i>Integrated Access Control</span>
-            <h1>오가는 모든 <em>사람과 차량</em>,<br>한 번의 검색으로 이어집니다</h1>
-      <div class="meta">이름 초성 · 차량번호 두 자리 · 업체명 하나로 방문 이력과 소속 변화까지 한눈에.</div>
+      <h1 class="hx"><span class="l1">실시간 교차하는 <em>인원과 차량</em>,</span><span class="l2">통합 조회 <u>하나로</u> 연결합니다.</span></h1>
+      <p class="hen"><i></i>Real-time movements of people and vehicles, <span>unified in one search.</span></p>
       <div class="usearch" id="usearch">
         <div class="box"><span class="ic">🔍</span><input id="uq" type="search" autocomplete="off" spellcheck="false" placeholder="이름(초성 ㅎㄱㄷ) · 차량번호 앞 2자리 · 업체 · 부서 · 업무" aria-label="통합 검색"><button class="btn sm" id="uqClr" type="button" aria-label="지우기">✕</button></div>
         <div class="kinds"><span>👤 방문자 이름 · 초성</span><span>🚗 차량번호 숫자 2자리부터</span><span>🏢 업체명 → 소속 방문자 · 차량</span><span id="kindDept">🏷 방문부서 · 업무 초성</span></div>
