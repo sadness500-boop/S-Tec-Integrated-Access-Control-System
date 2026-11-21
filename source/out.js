@@ -263,7 +263,7 @@ function chartForPeriod(F, w = 1270, h = 520) {
 function viewBlocks(view, F) {
   const M = viewModel(view, F), mg = UI.manager || {};
   const B = [{ k: 'title', t: M.title, approval: ['담 당', '반 장', '소 장'], sub: `${siteName()} · ${rangeTxt(F)}` },
-    { k: 'info', rows: [['사업장', siteName(), '작성일', fmtD(today())], ['작성자', [mg.name, mg.title].filter(Boolean).join(' ') || '-', '조회 조건', condTxt(F)]] },
+    { k: 'info', rows: [['사업장', siteName(), '사업장 유형', siteTypeName()], ['작성일', fmtD(today()), '작성자', [mg.name, mg.title].filter(Boolean).join(' ') || '-'], ['조회 조건', condTxt(F), '구분', '대외비 · 개인정보 포함']] },
     { k: 'box', title: '요약', items: summaryBox(M.S, F) }];
   if (view === 'period' || view === 'log') B.push({ k: 'img', src: chartForPeriod(F), wIn: 6.6, ratio: 520 / 1270, caption: '▲ 기간 출입 추이' });
   B.push({ k: 'h', t: `■ ${M.title}` });

@@ -10,7 +10,7 @@ const APP = {
   name: 'S-Tec Integrated Access Control System',
   ko: '통합 출입관리 시스템',
   code: 'stac',
-  version: 'v1.0.4',
+  version: 'v1.0.5',
   build: '2026-11-20',
   shareUrl: 'https://sadness500-boop.github.io/S-Tec-Integrated-Access-Control-System/',
   apkUrl: 'https://github.com/sadness500-boop/S-Tec-Integrated-Access-Control-System/releases/download/app-latest/stac-latest.apk',
@@ -137,8 +137,10 @@ const L = k => (AC.cfg.labels && AC.cfg.labels[k]) || ({ dept: '방문부서', h
 
 /* ---------- 사업장 ---------- */
 let SITE_LIST = [];
-function buildSites() { SITE_LIST = SITES.map(s => ({ key: 'b' + s.id, name: s.name, br: s.br, type: s.type, work: s.work, addr: s.addr })).filter(s => /보안|경비/.test(s.work) || /공장|물류|빌딩|대학|학교|병원/.test(s.type)); }
+function buildSites() { SITE_LIST = SITES.map(s => ({ key: 'b' + s.id, name: s.name, br: s.br, type: s.type, work: s.work })); }
+const CHK = i => ((AC.cfg.checks && AC.cfg.checks.length ? AC.cfg.checks : curProf().checks)[i]);
 function siteName() { return AC.cfg.site && AC.cfg.site.name || '사업장 미지정'; }
+function siteTypeName() { const p = profOf(AC.cfg.siteType); return p ? p.name : '유형 미선택'; }
 
 /* =====================================================================
  * 회사 · 사람 · 차량 레지스트리
@@ -432,13 +434,13 @@ function purgeOld(years) {
 }
 /* 예시 자료 — 모두 가상의 회사 · 사람 · 차량입니다(실제 방문자 정보 아님) */
 function loadSample() {
-  const COS = [['(주)한빛기계', '기계 설비 제조'], ['대성물류(주)', '물류 · 운송'], ['미래환경산업', '폐기물 수집 · 운반'], ['(주)세진엔지니어링', '설비 공사 · 정비'], ['그린푸드시스템', '단체급식'], ['우리소방기술', '소방시설 점검'], ['한결전기(주)', '전기 공사'], ['코리아택배 울산', '택배'], ['(주)동해정밀', '부품 제조'], ['새봄인력개발', '인력 파견 면접']];
+  const COS = (curProf().sampleCos || profOf('factory').sampleCos);
   const P = [['김민수', 0, '대리'], ['이서준', 1, '기사'], ['박지훈', 2, '반장'], ['최현우', 3, '과장'], ['정우진', 4, '팀장'], ['강도윤', 5, '주임'], ['조성민', 6, '기사'], ['윤재원', 7, '배송원'], ['장하늘', 8, '차장'], ['임수빈', 9, '지원자'], ['김민수', 3, '사원'], ['한지민', 0, '과장'], ['오세훈', 1, '기사'], ['서다은', 4, '조리사'], ['신동욱', 6, '소장']];
   const CARS = [['12가3456', '화물(1톤 이하)', 1], ['34나5678', '승용', 0], ['801다2345', '화물(1톤 초과)', 2], ['56라7890', '승합', 3], ['123마4567', '탱크로리', 1], ['78바1234', '택배', 7], ['90사5678', '승용', 8], ['12아9012', '화물(1톤 이하)', 6], ['345자6789', '승용', 5], ['67차3456', '화물(1톤 이하)', 4]];
   const DEP = AC.cfg.depts, PUR = AC.cfg.purposes, s0 = kstNow();
   const pids = P.map((p, i) => { const id = 'p_s' + i; AC.people[id] = { id, name: p[0], phone: '0105555' + pad(10 + i) + pad(i * 3 % 100), company: COS[p[1]][0], title: p[2], created: s0.toISOString(), sample: true, coHist: [] }; ensureCo(COS[p[1]][0]); return id; });
-  // 동명이인(김민수 2명) · 소속 변경(최현우: 세진엔지니어링 → 한결전기)
-  AC.people.p_s3.coHist = [{ co: '(주)세진엔지니어링', to: isoD(addDays(s0, -40)) }]; AC.people.p_s3.company = '한결전기(주)';
+  // 동명이인(김민수 2명) · 소속 변경(최현우: 4번째 예시 회사 → 7번째 예시 회사)
+  AC.people.p_s3.coHist = [{ co: COS[3][0], to: isoD(addDays(s0, -40)) }]; AC.people.p_s3.company = COS[6][0];
   COS.forEach(c => { const o = ensureCo(c[0]); o.info = o.info || { ind: c[1], addr: '울산광역시 (예시 주소)', tel: '052-000-0000', desc: '예시 회사입니다(가상).', src: ['예시 자료'], sample: true }; o.sample = true; });
   const cids = CARS.map((c, i) => { const id = plateKey(c[0]); AC.cars[id] = { id, plate: plateFmt(c[0]), type: c[1], model: ['포터2', '쏘나타', '마이티', '스타리아', '엑시언트', '봉고3', '그랜저', '포터2', 'K5', '봉고3'][i], color: ['흰색', '검정', '파랑', '흰색', '은색', '흰색', '검정', '파랑', '회색', '흰색'][i], company: COS[c[2]][0], driver: pids[[1, 0, 2, 3, 12, 7, 8, 14, 5, 4][i]], created: s0.toISOString(), sample: true, coHist: [] }; return id; });
   let k = 0;
@@ -447,7 +449,7 @@ function loadSample() {
     const n = 4 + ((back * 7) % 6);
     for (let j = 0; j < n; j++) {
       const pi = (back * 3 + j * 5) % pids.length, own = cids.filter(c => norm(AC.cars[c].company) === norm(AC.people[pids[pi]].company)), withCar = (j + back) % 3 === 0 && own.length, car = withCar ? own[(back + j) % own.length] : '';
-      const p = AC.people[pids[pi]]; let co = p.company; if (pi === 3 && back > 40) co = '(주)세진엔지니어링';
+      const p = AC.people[pids[pi]]; let co = p.company; if (pi === 3 && back > 40) co = COS[3][0];
       const hh = 8 + ((j * 2 + back) % 9), mm = (j * 17 + back * 11) % 60, stay = 20 + ((j * 37 + back) % 180);
       const tout = `${pad(Math.min(23, hh + Math.floor((mm + stay) / 60)))}:${pad((mm + stay) % 60)}`;
       const vehOnly = withCar && j % 4 === 0;

@@ -10,9 +10,9 @@
 <title>S-Tec Integrated Access Control System · 통합 출입관리 시스템</title>
 <meta name="description" content="에스텍 통합 출입관리 시스템 — 방문자 · 방문차량 출입 등록과 누적 DATA 관리">
 <meta name="theme-color" content="#0C2350">
-<link rel="manifest" href="manifest.webmanifest?v=1.0.4">
-<link rel="icon" href="icons/favicon-48.png?v=1.0.4">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.0.4">
+<link rel="manifest" href="manifest.webmanifest?v=1.0.5">
+<link rel="icon" href="icons/favicon-48.png?v=1.0.5">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.0.5">
 <style>
 /* =====================================================================
    S-Tec Integrated Access Control System — 화면 디자인
@@ -409,6 +409,17 @@ html[data-theme="dark"] .mainbtn{background:#EEF1FA;color:#0F1530}
 .hero-act{margin-top:12px}.hero-act .cta{padding:8px 14px;font-size:13.5px}
 @media(max-width:980px){.hero{grid-template-columns:1fr;min-height:0}.hero-art{height:auto;aspect-ratio:16/9;border-radius:28px 28px 0 0}
   .hero-art img{-webkit-mask-image:linear-gradient(180deg,#000 80%,transparent);mask-image:linear-gradient(180deg,#000 80%,transparent)}.usearch .kinds{flex-wrap:wrap}}
+/* 사업장 유형 선택 카드 */
+.typegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin:12px 0}
+.tyc{position:relative;text-align:left;border:1.5px solid var(--line);background:var(--panel);border-radius:18px;padding:14px 14px 12px;display:flex;flex-direction:column;gap:4px;color:var(--ink);transition:border-color .15s,transform .15s,box-shadow .15s}
+.tyc:hover{border-color:var(--nv2);transform:translateY(-2px);box-shadow:var(--shadow)}
+.tyc.on{border-color:var(--gr);background:color-mix(in srgb,var(--gr) 7%,var(--panel))}
+.tyc .tyi{font-size:30px;line-height:1}
+.tyc b{font-size:15px;letter-spacing:-.02em}
+.tyc small{color:var(--mute);font-size:12px;line-height:1.45}
+.tyc em{font-style:normal;font-size:11px;color:var(--nv2);font-weight:700}
+html[data-theme="dark"] .tyc em{color:#9DB0FF}
+.tyc .tyn{position:absolute;top:10px;right:10px;font-size:10.5px;font-weight:800;color:#fff;background:var(--gr);border-radius:999px;padding:2px 8px}
 /* ---------- 출입관리 전용 ---------- */
 .hero{overflow:visible;z-index:5}
 .hero::before{display:none}
@@ -508,7 +519,7 @@ html[data-theme="dark"] .lnkb{color:#9DB0FF}
       <div class="meta">이름 초성 · 차량번호 두 자리 · 업체명 하나로 방문 이력과 소속 변화까지 한눈에.</div>
       <div class="usearch" id="usearch">
         <div class="box"><span class="ic">🔍</span><input id="uq" type="search" autocomplete="off" spellcheck="false" placeholder="이름(초성 ㅎㄱㄷ) · 차량번호 앞 2자리 · 업체 · 부서 · 업무" aria-label="통합 검색"><button class="btn sm" id="uqClr" type="button" aria-label="지우기">✕</button></div>
-        <div class="kinds"><span>👤 방문자 이름 · 초성</span><span>🚗 차량번호 숫자 2자리부터</span><span>🏢 업체명 → 소속 방문자 · 차량</span><span>🏷 방문부서 · 업무 초성</span></div>
+        <div class="kinds"><span>👤 방문자 이름 · 초성</span><span>🚗 차량번호 숫자 2자리부터</span><span>🏢 업체명 → 소속 방문자 · 차량</span><span id="kindDept">🏷 방문부서 · 업무 초성</span></div>
         <div class="sres hidden" id="sres" role="listbox"></div>
       </div>
       <div class="stats">
@@ -3519,7 +3530,7 @@ const APP = {
   name: 'S-Tec Integrated Access Control System',
   ko: '통합 출입관리 시스템',
   code: 'stac',
-  version: 'v1.0.4',
+  version: 'v1.0.5',
   build: '2026-11-20',
   shareUrl: 'https://sadness500-boop.github.io/S-Tec-Integrated-Access-Control-System/',
   apkUrl: 'https://github.com/sadness500-boop/S-Tec-Integrated-Access-Control-System/releases/download/app-latest/stac-latest.apk',
@@ -3646,8 +3657,10 @@ const L = k => (AC.cfg.labels && AC.cfg.labels[k]) || ({ dept: '방문부서', h
 
 /* ---------- 사업장 ---------- */
 let SITE_LIST = [];
-function buildSites() { SITE_LIST = SITES.map(s => ({ key: 'b' + s.id, name: s.name, br: s.br, type: s.type, work: s.work, addr: s.addr })).filter(s => /보안|경비/.test(s.work) || /공장|물류|빌딩|대학|학교|병원/.test(s.type)); }
+function buildSites() { SITE_LIST = SITES.map(s => ({ key: 'b' + s.id, name: s.name, br: s.br, type: s.type, work: s.work })); }
+const CHK = i => ((AC.cfg.checks && AC.cfg.checks.length ? AC.cfg.checks : curProf().checks)[i]);
 function siteName() { return AC.cfg.site && AC.cfg.site.name || '사업장 미지정'; }
+function siteTypeName() { const p = profOf(AC.cfg.siteType); return p ? p.name : '유형 미선택'; }
 
 /* =====================================================================
  * 회사 · 사람 · 차량 레지스트리
@@ -3941,13 +3954,13 @@ function purgeOld(years) {
 }
 /* 예시 자료 — 모두 가상의 회사 · 사람 · 차량입니다(실제 방문자 정보 아님) */
 function loadSample() {
-  const COS = [['(주)한빛기계', '기계 설비 제조'], ['대성물류(주)', '물류 · 운송'], ['미래환경산업', '폐기물 수집 · 운반'], ['(주)세진엔지니어링', '설비 공사 · 정비'], ['그린푸드시스템', '단체급식'], ['우리소방기술', '소방시설 점검'], ['한결전기(주)', '전기 공사'], ['코리아택배 울산', '택배'], ['(주)동해정밀', '부품 제조'], ['새봄인력개발', '인력 파견 면접']];
+  const COS = (curProf().sampleCos || profOf('factory').sampleCos);
   const P = [['김민수', 0, '대리'], ['이서준', 1, '기사'], ['박지훈', 2, '반장'], ['최현우', 3, '과장'], ['정우진', 4, '팀장'], ['강도윤', 5, '주임'], ['조성민', 6, '기사'], ['윤재원', 7, '배송원'], ['장하늘', 8, '차장'], ['임수빈', 9, '지원자'], ['김민수', 3, '사원'], ['한지민', 0, '과장'], ['오세훈', 1, '기사'], ['서다은', 4, '조리사'], ['신동욱', 6, '소장']];
   const CARS = [['12가3456', '화물(1톤 이하)', 1], ['34나5678', '승용', 0], ['801다2345', '화물(1톤 초과)', 2], ['56라7890', '승합', 3], ['123마4567', '탱크로리', 1], ['78바1234', '택배', 7], ['90사5678', '승용', 8], ['12아9012', '화물(1톤 이하)', 6], ['345자6789', '승용', 5], ['67차3456', '화물(1톤 이하)', 4]];
   const DEP = AC.cfg.depts, PUR = AC.cfg.purposes, s0 = kstNow();
   const pids = P.map((p, i) => { const id = 'p_s' + i; AC.people[id] = { id, name: p[0], phone: '0105555' + pad(10 + i) + pad(i * 3 % 100), company: COS[p[1]][0], title: p[2], created: s0.toISOString(), sample: true, coHist: [] }; ensureCo(COS[p[1]][0]); return id; });
-  // 동명이인(김민수 2명) · 소속 변경(최현우: 세진엔지니어링 → 한결전기)
-  AC.people.p_s3.coHist = [{ co: '(주)세진엔지니어링', to: isoD(addDays(s0, -40)) }]; AC.people.p_s3.company = '한결전기(주)';
+  // 동명이인(김민수 2명) · 소속 변경(최현우: 4번째 예시 회사 → 7번째 예시 회사)
+  AC.people.p_s3.coHist = [{ co: COS[3][0], to: isoD(addDays(s0, -40)) }]; AC.people.p_s3.company = COS[6][0];
   COS.forEach(c => { const o = ensureCo(c[0]); o.info = o.info || { ind: c[1], addr: '울산광역시 (예시 주소)', tel: '052-000-0000', desc: '예시 회사입니다(가상).', src: ['예시 자료'], sample: true }; o.sample = true; });
   const cids = CARS.map((c, i) => { const id = plateKey(c[0]); AC.cars[id] = { id, plate: plateFmt(c[0]), type: c[1], model: ['포터2', '쏘나타', '마이티', '스타리아', '엑시언트', '봉고3', '그랜저', '포터2', 'K5', '봉고3'][i], color: ['흰색', '검정', '파랑', '흰색', '은색', '흰색', '검정', '파랑', '회색', '흰색'][i], company: COS[c[2]][0], driver: pids[[1, 0, 2, 3, 12, 7, 8, 14, 5, 4][i]], created: s0.toISOString(), sample: true, coHist: [] }; return id; });
   let k = 0;
@@ -3956,7 +3969,7 @@ function loadSample() {
     const n = 4 + ((back * 7) % 6);
     for (let j = 0; j < n; j++) {
       const pi = (back * 3 + j * 5) % pids.length, own = cids.filter(c => norm(AC.cars[c].company) === norm(AC.people[pids[pi]].company)), withCar = (j + back) % 3 === 0 && own.length, car = withCar ? own[(back + j) % own.length] : '';
-      const p = AC.people[pids[pi]]; let co = p.company; if (pi === 3 && back > 40) co = '(주)세진엔지니어링';
+      const p = AC.people[pids[pi]]; let co = p.company; if (pi === 3 && back > 40) co = COS[3][0];
       const hh = 8 + ((j * 2 + back) % 9), mm = (j * 17 + back * 11) % 60, stay = 20 + ((j * 37 + back) % 180);
       const tout = `${pad(Math.min(23, hh + Math.floor((mm + stay) / 60)))}:${pad((mm + stay) % 60)}`;
       const vehOnly = withCar && j % 4 === 0;
@@ -3969,6 +3982,122 @@ function loadSample() {
   saveAC(); return k;
 }
 function clearSample() { ['people', 'cars', 'cos', 'visits'].forEach(k => Object.keys(AC[k]).forEach(id => { if (AC[k][id].sample) delete AC[k][id]; })); saveAC(); }
+
+/* =====================================================================
+ * 사업장 유형 프로필 — 공장만이 아니라 아파트 · 병원 · 빌딩 · 연수원 · 공사현장 · 학교 · 물류센터 · 공공기관 · 레저시설까지
+ *  유형마다 출입관리 개념이 달라 「방문처(부서 · 동호수 · 병동 · 층 · 공종)」 · 방문 목적 · 출입구 · 차종 · 확인 항목 · 항목 이름을 다르게 씁니다.
+ *  처음 실행할 때 유형을 고르고(⚙ 설정에서 언제든 변경), 고른 뒤에도 목록 · 항목 이름은 사업장에 맞게 고칠 수 있습니다.
+ * Designed & Developed by Rat Rae Choi
+ * ===================================================================== */
+const SITE_PROFILES = [
+  { key: 'factory', icon: '🏭', name: '공장 · 산업시설', en: 'Factory', siteTypes: ['공장'],
+    desc: '정문 · 외곽 출입문에서 협력업체 · 납품 · 공사 인력과 화물차량을 통제', ex: '방문부서 · 납품 · 계근 · 보안서약',
+    labels: { dept: '방문부서', host: '피방문자(담당)', purpose: '방문 목적(업무)', co: '소속 회사', gate: '출입구', items: '반입 물품' },
+    gates: ['정문', '후문', '물류 출입구'],
+    depts: ['총무팀', '인사팀', '생산팀', '품질팀', '구매팀', '설비보전팀', '환경안전팀', '연구소', '영업팀', '물류팀', '자재창고', '경영지원팀'],
+    purposes: ['업무 협의', '납품', '출고 · 상차', '공사 · 작업', '설비 점검 · A/S', '면접', '교육 · 견학', '회의', '택배 · 배송', '폐기물 수거', '기타'],
+    vtypes: ['승용', '승합', '화물(1톤 이하)', '화물(1톤 초과)', '트레일러 · 컨테이너', '탱크로리', '특수 · 중장비', '택배', '이륜'],
+    checks: ['신분 확인', '보안서약 · 개인정보 수집 동의'], coOpt: false,
+    sampleCos: [['(주)한빛기계', '기계 설비 제조'], ['대성물류(주)', '물류 · 운송'], ['미래환경산업', '폐기물 수집 · 운반'], ['(주)세진엔지니어링', '설비 공사 · 정비'], ['그린푸드시스템', '단체급식'], ['우리소방기술', '소방시설 점검'], ['한결전기(주)', '전기 공사'], ['코리아택배 울산', '택배'], ['(주)동해정밀', '부품 제조'], ['새봄인력개발', '인력 파견 면접']] },
+  { key: 'apartment', icon: '🏢', name: '아파트 · 주거단지', en: 'Apartment', siteTypes: ['아파트'],
+    desc: '세대 방문객 · 택배 · 이사 · 인테리어 공사 · 방문차량(정기 · 일시)을 동 · 호수 기준으로 관리', ex: '방문 동 · 호수 · 세대 확인(인터폰) · 이사 · 공사 차량',
+    labels: { dept: '방문 동 · 호수', host: '세대주 · 입주민', purpose: '방문 목적', co: '소속(업체 · 개인)', gate: '출입구', items: '반입 물품 · 장비' },
+    gates: ['정문', '후문', '지하주차장 입구', '상가 쪽 출입구'],
+    depts: ['101동', '102동', '103동', '104동', '105동', '106동', '관리사무소', '커뮤니티센터', '상가'],
+    purposes: ['세대 방문(가족 · 지인)', '택배 · 배달', '이사(전입 · 전출)', '인테리어 · 리모델링 공사', '방문 수리 · 설치', '가전 · 가구 배송', '방문 요양 · 돌봄', '관리사무소 업무', '부동산 · 집 보기', '기타'],
+    vtypes: ['승용', '승합', '화물(1톤 이하)', '이사 차량 · 사다리차', '공사 차량', '택배 · 배달', '이륜'],
+    checks: ['세대 확인(인터폰 · 통화)', '개인정보 수집 동의'], coOpt: true,
+    sampleCos: [['행복이사', '이사 · 운송'], ['코리아택배', '택배'], ['아름인테리어', '실내 건축 · 인테리어'], ['한빛가전서비스', '가전 설치 · 수리'], ['늘봄재가요양센터', '방문 요양'], ['푸른부동산', '부동산 중개'], ['(주)대한승강기', '승강기 점검'], ['깨끗한방역', '소독 · 방역'], ['우리가구', '가구 배송'], ['든든설비', '배관 · 설비 수리']] },
+  { key: 'hospital', icon: '🏥', name: '병원 · 의료시설', en: 'Hospital', siteTypes: ['병원'],
+    desc: '환자 면회 · 보호자 상주 · 의약품 납품 · 장례식장 조문 · 의료폐기물 차량을 병동 · 진료과 기준으로 관리', ex: '병동 · 병실 · 면회 · 보호자 · 감염 확인',
+    labels: { dept: '방문 병동 · 진료과', host: '환자명(병실) · 담당자', purpose: '방문 목적', co: '소속(업체 · 보호자 등)', gate: '출입구', items: '반입 물품' },
+    gates: ['본관 정문', '응급실 출입구', '장례식장 입구', '지하주차장', '물류 · 하역장'],
+    depts: ['내과 병동', '외과 병동', '중환자실', '소아 병동', '응급실', '외래 진료부', '검사실', '약제부', '원무과', '장례식장', '행정실'],
+    purposes: ['환자 면회', '보호자 상주', '외래 진료 동행', '장례식장 조문', '의약품 · 의료기기 납품', '의료폐기물 수거', '식자재 · 급식 납품', '시설 점검 · 공사', '업무 협의 · 영업', '기타'],
+    vtypes: ['승용', '승합', '구급차', '장의 차량', '화물(1톤 이하)', '의료폐기물 차량', '택배', '이륜'],
+    checks: ['발열 · 감염 증상 확인', '면회 수칙 · 개인정보 동의'], coOpt: true,
+    sampleCos: [['(주)메디팜유통', '의약품 도매'], ['한국의료기기(주)', '의료기기'], ['클린메디칼', '의료폐기물 수거'], ['든든푸드', '병원 급식'], ['가족 · 보호자', '보호자'], ['효성상조', '장례 서비스'], ['(주)세진설비', '시설 공사'], ['바이오랩', '검사 시약'], ['안심간병', '간병 인력'], ['우리소방기술', '소방 점검']] },
+  { key: 'building', icon: '🏙', name: '오피스 빌딩 · 업무시설', en: 'Office building', siteTypes: ['빌딩'],
+    desc: '로비 게이트에서 입주사 방문객 · 면접자 · 퀵 · 공사 인력과 주차 차량을 층 · 입주사 기준으로 관리', ex: '방문 층 · 입주사 · 방문증 · 주차 등록',
+    labels: { dept: '방문 층 · 입주사', host: '피방문자(입주사 담당)', purpose: '방문 목적', co: '소속 회사', gate: '출입 게이트', items: '반입 물품' },
+    gates: ['1층 로비 게이트', '지하주차장 출입구', '하역장', '후문'],
+    depts: ['3층 (주)에이원', '5층 한빛컨설팅', '7층 세무법인 정도', '9층 IT솔루션(주)', '12층 법무법인', '관리사무소', '1층 상가'],
+    purposes: ['미팅 · 업무 협의', '면접', '택배 · 퀵', '시설 공사', '청소 · 방역', '입주 · 이사', '설비 점검', '세미나 · 행사', '기타'],
+    vtypes: ['승용', '승합', '화물(1톤 이하)', '택배 · 퀵', '공사 차량', '이륜'],
+    checks: ['신분 확인 · 방문증 발급', '개인정보 수집 동의'], coOpt: false,
+    sampleCos: [['(주)에이원', 'IT 서비스'], ['한빛컨설팅', '경영 컨설팅'], ['번개퀵서비스', '퀵 · 배송'], ['(주)대한승강기', '승강기 점검'], ['깨끗한방역', '방역'], ['스마트오피스가구', '사무가구'], ['코리아택배', '택배'], ['(주)세진인테리어', '사무실 공사'], ['정도세무회계', '세무'], ['새봄인력개발', '면접']] },
+  { key: 'training', icon: '🎓', name: '연수원 · 교육시설', en: 'Training center', siteTypes: ['연수원'],
+    desc: '교육생 입소 · 강사 · 행사 참가자 · 숙박 · 식자재 납품을 교육과정 · 숙소동 기준으로 관리', ex: '교육과정 · 숙소동 · 입소 · 퇴소',
+    labels: { dept: '교육과정 · 시설(숙소동)', host: '과정 담당자', purpose: '방문 목적', co: '소속(기관 · 회사)', gate: '출입구', items: '반입 물품' },
+    gates: ['정문', '본관 로비', '숙소동 출입구', '식당 · 물류 출입구'],
+    depts: ['신입사원 과정', '관리자 과정', '직무 교육', '세미나실', '대강당', '숙소 A동', '숙소 B동', '식당', '행정실'],
+    purposes: ['교육 입소', '교육 퇴소', '강사 방문', '행사 · 세미나 참석', '숙박', '식자재 납품', '시설 점검 · 공사', '견학', '기타'],
+    vtypes: ['승용', '승합', '관광버스', '화물(1톤 이하)', '식자재 차량', '이륜'],
+    checks: ['교육생 · 참가자 명단 확인', '개인정보 수집 동의'], coOpt: true,
+    sampleCos: [['(주)한빛전자', '교육생 소속'], ['대한산업(주)', '교육생 소속'], ['한국리더십연구소', '외부 강사'], ['든든푸드', '식자재 납품'], ['태양관광', '관광버스'], ['(주)세진설비', '시설 점검'], ['미래교육컨설팅', '교육 운영'], ['클린침구', '침구 세탁'], ['우리소방기술', '소방 점검'], ['코리아택배', '택배']] },
+  { key: 'construction', icon: '🏗', name: '공사현장 · 건설현장', en: 'Construction site', siteTypes: [],
+    desc: '일용 · 협력업체 작업자 투입 · 자재 · 장비 반입 차량을 공종 · 작업 구역 기준으로 관리(안전교육 · 보호구 확인)', ex: '공종 · 협력업체 · 안전교육 · 장비 반입',
+    labels: { dept: '공종 · 작업 구역', host: '현장 담당자(공무 · 안전)', purpose: '출입 목적', co: '소속(협력업체)', gate: '출입 게이트', items: '반입 자재 · 장비' },
+    gates: ['1번 게이트(정문)', '2번 게이트(장비 출입)', '사무동'],
+    depts: ['토목', '골조(철근 · 형틀)', '전기', '설비 · 배관', '방수', '도장', '조경', '안전관리실', '공무팀', 'A구역', 'B구역'],
+    purposes: ['작업 투입', '자재 반입', '장비 반입 · 반출', '레미콘 타설', '감리 · 검측', '안전 점검', '신규자 안전교육', '견학 · 방문', '기타'],
+    vtypes: ['승용', '승합', '덤프트럭', '레미콘', '펌프카', '크레인', '굴삭기 · 지게차', '화물(1톤 이하)', '화물(1톤 초과)'],
+    checks: ['안전교육 이수 확인', '보호구(안전모 · 안전화) 착용'], coOpt: false,
+    sampleCos: [['(주)대한토건', '토목'], ['한결철근', '철근 · 형틀'], ['(주)빛나전기', '전기 공사'], ['우리설비', '설비 · 배관'], ['동해레미콘', '레미콘'], ['(주)대성중기', '건설 장비'], ['튼튼방수', '방수'], ['한국건설감리(주)', '감리'], ['푸른조경', '조경'], ['미래도장', '도장']] },
+  { key: 'school', icon: '🏫', name: '학교 · 대학교', en: 'School / University', siteTypes: ['학교', '대학교'],
+    desc: '학부모 · 외부 강사 · 행사 · 납품 · 공사 출입을 학과 · 건물 기준으로 관리(학생 안전 중심)', ex: '학과 · 건물 · 학부모 · 행사',
+    labels: { dept: '방문 학과 · 건물', host: '피방문자(교직원)', purpose: '방문 목적', co: '소속(기관 · 업체 · 학부모)', gate: '출입구', items: '반입 물품' },
+    gates: ['정문', '후문', '본관 로비', '체육관 출입구'],
+    depts: ['본관 행정실', '교무실', '학생처', '공학관', '인문관', '도서관', '체육관', '기숙사', '학생식당'],
+    purposes: ['학부모 상담', '외부 강의 · 특강', '행사 · 입시 설명회', '면접', '급식 · 물품 납품', '시설 공사 · 점검', '견학', '택배', '기타'],
+    vtypes: ['승용', '승합', '통학 · 관광버스', '화물(1톤 이하)', '급식 차량', '택배', '이륜'],
+    checks: ['신분 확인 · 방문 목적 확인', '개인정보 수집 동의'], coOpt: true,
+    sampleCos: [['학부모', '학부모'], ['한국교육연구원', '외부 강사'], ['든든푸드', '급식 납품'], ['(주)세진설비', '시설 공사'], ['스마트교구', '교구 납품'], ['코리아택배', '택배'], ['태양관광', '버스'], ['우리소방기술', '소방 점검'], ['미래입시컨설팅', '설명회'], ['클린방역', '방역']] },
+  { key: 'logistics', icon: '🚚', name: '물류센터 · 창고', en: 'Logistics center', siteTypes: ['물류센타'],
+    desc: '입고 · 출고 · 반품 화물차량과 기사 출입을 도크 · 창고동 기준으로 관리', ex: '도크 · 입고 · 출고 · 차종(윙바디 · 탑차)',
+    labels: { dept: '도크 · 창고동', host: '입출고 담당자', purpose: '작업 구분', co: '소속(운송사)', gate: '출입 게이트', items: '적재 화물' },
+    gates: ['입차 게이트', '출차 게이트', '사무동'],
+    depts: ['1번 도크', '2번 도크', '3번 도크', 'A동(상온)', 'B동(저온)', '반품장', '사무동'],
+    purposes: ['입고', '출고', '반품 회수', '공차 회수', '장비 점검', '업무 협의', '면접', '기타'],
+    vtypes: ['윙바디', '탑차(냉장 · 냉동)', '카고', '트레일러 · 컨테이너', '화물(1톤 이하)', '지게차', '승용'],
+    checks: ['운송장 · 입출고 지시 확인', '안전수칙 · 개인정보 동의'], coOpt: false,
+    sampleCos: [['대성물류(주)', '화물 운송'], ['한빛로지스', '3PL'], ['코리아익스프레스', '택배 간선'], ['(주)신선냉동', '냉동 운송'], ['동해해운', '컨테이너'], ['(주)대성중기', '지게차 점검'], ['미래팔레트', '팔레트 렌탈'], ['새봄인력개발', '면접'], ['우리소방기술', '소방 점검'], ['그린환경', '폐기물']] },
+  { key: 'public', icon: '🏛', name: '공공기관 · 영사관', en: 'Public office / Consulate', siteTypes: ['관공서'],
+    desc: '민원인 · 행사 참석자 · 업무 방문을 부서 기준으로 관리(보안 검색 · 신분 확인 강화)', ex: '민원 · 부서 · 보안 검색 · 신분증 확인',
+    labels: { dept: '방문 부서', host: '담당 공무원 · 직원', purpose: '방문 목적', co: '소속(기관 · 업체 · 개인)', gate: '출입구', items: '휴대 물품(보안 검색)' },
+    gates: ['정문 · 보안검색대', '민원실 출입구', '차량 출입구'],
+    depts: ['민원실', '총무과', '사증(비자)과', '영사과', '홍보문화과', '회의실', '대강당'],
+    purposes: ['민원', '비자 · 영사 업무', '행사 · 회의 참석', '업무 협의', '납품', '시설 점검 · 공사', '언론 취재', '기타'],
+    vtypes: ['승용', '승합', '외교 차량', '화물(1톤 이하)', '택배', '이륜'],
+    checks: ['신분증 확인', '보안 검색 · 개인정보 동의'], coOpt: true,
+    sampleCos: [['개인 민원인', '민원'], ['(주)세계여행사', '여행 · 비자 대행'], ['한국무역협회', '행사'], ['코리아택배', '택배'], ['(주)세진설비', '시설 점검'], ['부산일보', '언론'], ['든든케이터링', '행사 케이터링'], ['우리소방기술', '소방 점검'], ['깨끗한방역', '방역'], ['한빛통번역', '통역']] },
+  { key: 'leisure', icon: '⛳', name: '골프장 · 레저 · 리조트', en: 'Leisure / Resort', siteTypes: ['골프장'],
+    desc: '내장객 · 행사 · 납품 · 코스 관리 업체 출입을 시설 기준으로 관리', ex: '클럽하우스 · 예약 확인 · 납품',
+    labels: { dept: '방문 시설', host: '예약자 · 담당자', purpose: '방문 목적', co: '소속(업체 · 개인)', gate: '출입구', items: '반입 물품' },
+    gates: ['정문', '클럽하우스', '직원 · 납품 출입구'],
+    depts: ['클럽하우스', '연회장', '코스관리팀', '카트고', '레스토랑', '프로숍', '사무동'],
+    purposes: ['내장(예약)', '행사 · 연회', '식자재 납품', '코스 관리 작업', '장비 점검', '업무 협의', '기타'],
+    vtypes: ['승용', '승합', '관광버스', '화물(1톤 이하)', '식자재 차량', '장비 차량'],
+    checks: ['예약 · 신분 확인', '개인정보 수집 동의'], coOpt: true,
+    sampleCos: [['개인 내장객', '내장객'], ['한빛컨트리클럽 회원', '회원'], ['든든푸드', '식자재'], ['그린코스관리', '코스 관리'], ['(주)대성중기', '장비'], ['태양관광', '버스'], ['스마트골프용품', '용품 납품'], ['깨끗한방역', '방역'], ['우리소방기술', '소방 점검'], ['코리아택배', '택배']] },
+  { key: 'custom', icon: '🧩', name: '기타 · 직접 구성', en: 'Custom', siteTypes: [],
+    desc: '위에 없는 사업장 — 기본 항목으로 시작해 출입구 · 방문처 · 목적 · 항목 이름을 직접 맞춤', ex: '모든 항목 직접 설정',
+    labels: { dept: '방문처', host: '피방문자(담당)', purpose: '방문 목적', co: '소속', gate: '출입구', items: '반입 물품' },
+    gates: ['정문', '후문'], depts: ['사무실', '현장'], purposes: ['업무 협의', '납품', '공사 · 작업', '방문', '기타'],
+    vtypes: ['승용', '승합', '화물(1톤 이하)', '화물(1톤 초과)', '택배', '이륜'],
+    checks: ['신분 확인', '개인정보 수집 동의'], coOpt: true, sampleCos: null }
+];
+const profOf = k => SITE_PROFILES.find(p => p.key === k) || null;
+const curProf = () => profOf(AC.cfg.siteType) || SITE_PROFILES[0];
+const profForSiteType = t => SITE_PROFILES.find(p => p.siteTypes.includes(t)) || null;
+/* 유형 적용 — 목록 · 항목 이름 · 확인 항목을 그 유형 기본값으로 */
+function applyProfile(key) {
+  const p = profOf(key); if (!p) return;
+  const c = AC.cfg;
+  c.siteType = p.key; c.gates = p.gates.slice(); c.depts = p.depts.slice(); c.purposes = p.purposes.slice(); c.vtypes = p.vtypes.slice();
+  c.labels = Object.assign({}, p.labels); c.checks = p.checks.slice(); c.coOpt = !!p.coOpt;
+  saveAC();
+}
 
 /* =====================================================================
  * S-Tec Integrated Access Control System — 상단 기능
@@ -4096,7 +4225,7 @@ function showGate() {
   if (UI.manager) { gt.classList.add('hidden'); document.body.classList.remove('gate-locked'); return; }
   gt.classList.remove('hidden'); document.body.classList.add('gate-locked');
   $('#gateForm').innerHTML = mgrFormHtml() + '<button class="btn pri" id="gateGo" style="width:100%;padding:11px;font-size:15px">출입 담당 지정하고 시작</button>';
-  const commit = bindMgrForm($('#gateForm'), () => { showGate(); toast('통합 출입관리 시스템을 시작합니다'); });
+  const commit = bindMgrForm($('#gateForm'), () => { showGate(); toast('통합 출입관리 시스템을 시작합니다'); if (typeof ensureSiteType === 'function') ensureSiteType(); });
   $('#gateGo').onclick = commit;
   $('#mgName').addEventListener('keydown', e => { if (e.key === 'Enter') commit(); });
 }
@@ -4137,7 +4266,32 @@ function renderHeroStats() {
   const ins = inside(); $('#stIn').textContent = nf(ins.length); $('#stIn2').textContent = ins.length ? `건 · 차량 ${ins.filter(v => v.cid).length}` : '건';
   $('#stAll').textContent = nf(Object.keys(AC.visits).length); $('#stAll2').textContent = `건 · ${nf(Object.keys(AC.people).length)}명 · ${nf(Object.keys(AC.cars).length)}대`;
 }
-function renderSiteCard() { $('#siteName').textContent = AC.cfg.site && AC.cfg.site.name ? AC.cfg.site.name : '미지정'; }
+function renderSiteCard() {
+  const p = profOf(AC.cfg.siteType);
+  $('#siteName').textContent = `${p ? p.icon + ' ' : ''}${AC.cfg.site && AC.cfg.site.name ? AC.cfg.site.name : (p ? p.name : '미지정')}`;
+  const k = $('#kindDept'); if (k) k.textContent = `🏷 ${L('dept')} · 업무 초성`;
+  const lb = $('#siteCard .t1'); if (lb) lb.textContent = p ? `운영 사업장 · ${p.name.split(' · ')[0]}` : '운영 사업장';
+}
+/* =====================================================================
+ * 사업장 유형 선택 — 처음 한 번(⚙ 설정에서 언제든 변경)
+ * ===================================================================== */
+function ensureSiteType() { if (UI.manager && !AC.cfg.siteType) openTypePicker(true); }
+function openTypePicker(first) {
+  const cur = AC.cfg.siteType;
+  const hasCustom = !!cur && (JSON.stringify(AC.cfg.depts) !== JSON.stringify(curProf().depts) || JSON.stringify(AC.cfg.purposes) !== JSON.stringify(curProf().purposes));
+  openModal(`<h2>🏷 사업장 유형 선택</h2><div class="sub">${first ? '이 기기에서 출입을 관리할 사업장의 유형을 고르세요. 유형에 맞게 방문처(부서 · 동호수 · 병동 · 층 · 공종) · 방문 목적 · 출입구 · 차종 · 확인 항목 · 항목 이름이 자동으로 맞춰집니다.' : '유형을 바꾸면 방문처 · 목적 · 출입구 · 차종 목록과 항목 이름이 새 유형 기본값으로 바뀝니다. 지금까지의 출입 기록은 그대로 남습니다.'}</div>
+    <div class="typegrid">${SITE_PROFILES.map(p => `<button type="button" class="tyc ${p.key === cur ? 'on' : ''}" data-ty="${p.key}"><span class="tyi">${p.icon}</span><b>${esc(p.name)}</b><small>${esc(p.desc)}</small><em>${esc(p.ex)}</em>${p.key === cur ? '<span class="tyn">현재</span>' : ''}</button>`).join('')}</div>
+    ${hasCustom ? '<p class="hint">⚠ 지금 목록을 직접 고친 내용이 있습니다 — 유형을 바꾸면 새 유형 기본값으로 바뀝니다(⚙ 설정에서 다시 고칠 수 있음).</p>' : ''}
+    <div class="mrow">${first ? '' : '<button class="btn" id="mClose">닫기</button>'}</div>`, md => {
+    const c = md.querySelector('#mClose'); if (c) c.onclick = closeModal;
+    md.querySelectorAll('[data-ty]').forEach(b => b.onclick = () => {
+      const p = profOf(b.dataset.ty); if (!first && p.key === cur) return closeModal();
+      applyProfile(p.key); closeModal(); toast(`${p.icon} ${p.name} 유형으로 시작합니다 — 목록 · 항목 이름은 ⚙ 설정에서 고칠 수 있습니다`, 4200); renderAll();
+      if (first && !(AC.cfg.site && AC.cfg.site.name)) setTimeout(openSitePick, 400);
+    });
+  }, 2);
+  if (first) { const bg = $('.modal-bg'); if (bg) { bg.addEventListener('click', e => { if (e.target === bg) e.stopImmediatePropagation(); }, true); bg.addEventListener('keydown', e => { if (e.key === 'Escape') e.stopImmediatePropagation(); }, true); } }
+}
 
 /* =====================================================================
  * 통합 검색 (메인 화면)
@@ -4199,7 +4353,7 @@ function renderEntry() {
    <div class="body"><div id="vBan"></div><div class="fg">
     <label>${esc(L('name'))} <i>*</i><input id="vName" autocomplete="off" placeholder="예: 홍길동 (초성 ㅎㄱㄷ로 찾기)"><div class="sug hidden" id="vNameSug"></div></label>
     <label>연락처 ${req.phone ? '<i>*</i>' : ''}<input id="vPhone" inputmode="tel" autocomplete="off" placeholder="동명이인 구분에 사용"></label>
-    <label>${esc(L('co'))} <i>*</i><input id="vCo" autocomplete="off" placeholder="예: (주)한빛기계"><div class="sug hidden" id="vCoSug"></div></label>
+    <label>${esc(L('co'))} ${AC.cfg.coOpt ? '' : '<i>*</i>'}<input id="vCo" autocomplete="off" placeholder="${AC.cfg.coOpt ? '비우면 「개인」으로 저장' : '예: (주)한빛기계'}"><div class="sug hidden" id="vCoSug"></div></label>
     <label>직위 · 직책<input id="vPos" autocomplete="off"></label>
     <label>${esc(L('dept'))} <i>*</i><input id="vDept" list="dlDept" autocomplete="off"></label>
     <label>${esc(L('host'))} ${req.host ? '<i>*</i>' : ''}<input id="vHost" autocomplete="off" placeholder="면담자 이름"></label>
@@ -4212,14 +4366,14 @@ function renderEntry() {
     <label>입실 일자<input id="vD" type="date" value="${today()}"></label>
     <label>입실 시각<input id="vTin" type="time" value="${nowHM()}"></label>
     <label class="full">비고<input id="vNote" autocomplete="off"></label>
-    <div class="full"><label class="ck"><input type="checkbox" id="vIdChk"> 신분 확인</label><label class="ck"><input type="checkbox" id="vPledge"> 보안서약 · 개인정보 수집 동의</label></div>
+    <div class="full"><label class="ck"><input type="checkbox" id="vIdChk"> ${esc(CHK(0))}</label><label class="ck"><input type="checkbox" id="vPledge"> ${esc(CHK(1))}</label></div>
    </div><div class="row" style="margin-top:12px;justify-content:flex-end"><button class="btn" id="vReset">지우기</button><button class="btn pri" id="vSave">👤 방문자 입실 등록</button></div>
    <div class="priv">🔒 연락처는 목록 · 출력물에서 가려 표시합니다(설정에서 변경). 수집 항목은 출입관리 목적에만 쓰이며 보유기간(${AC.cfg.retainY}년)이 지나면 파기합니다.</div></div></section>
   <section class="card fcard veh" aria-label="방문차량 입력"><div class="ftop"><span class="big">🚗</span><div><b>방문차량 입력</b><small>번호판 숫자 두 자리부터 기존 차량을 찾아 소속 · 차종 · 운전자를 채워 줍니다</small></div></div>
    <div class="body"><div id="cBan"></div><div class="fg">
     <label>${esc(L('plate'))} <i>*</i><input id="cPlate" autocomplete="off" placeholder="예: 12가3456 (숫자 2자리부터 검색)"><div class="sug hidden" id="cPlateSug"></div></label>
     <label>차종<select id="cType">${opt(c.vtypes, '', '선택')}</select></label>
-    <label>${esc(L('co'))} <i>*</i><input id="cCo" autocomplete="off"><div class="sug hidden" id="cCoSug"></div></label>
+    <label>${esc(L('co'))} ${AC.cfg.coOpt ? '' : '<i>*</i>'}<input id="cCo" autocomplete="off" placeholder="${AC.cfg.coOpt ? '비우면 「개인」으로 저장' : ''}"><div class="sug hidden" id="cCoSug"></div></label>
     <label>차량 모델 · 색상<input id="cModel" autocomplete="off" placeholder="포터2 흰색"></label>
     <label>운전자 이름<input id="cDriver" autocomplete="off" placeholder="있으면 방문자 DATA에도 연결"><div class="sug hidden" id="cDriverSug"></div></label>
     <label>운전자 연락처<input id="cPhone" inputmode="tel" autocomplete="off"></label>
@@ -4298,7 +4452,7 @@ function confirmBan(o, what) {
 }
 const gv = id => ($(id) ? $(id).value.trim() : '');
 async function saveVisitor() {
-  const f = { name: gv('#vName'), phone: gv('#vPhone').replace(/[^\d-]/g, ''), co: gv('#vCo'), title: gv('#vPos') }, req = AC.cfg.required || {};
+  const f = { name: gv('#vName'), phone: gv('#vPhone').replace(/[^\d-]/g, ''), co: gv('#vCo') || (AC.cfg.coOpt ? '개인' : ''), title: gv('#vPos') }, req = AC.cfg.required || {};
   const miss = [[f.name, L('name')], [f.co, L('co')], [gv('#vDept'), L('dept')], [gv('#vPurp'), L('purpose')], [!req.phone || f.phone, '연락처'], [!req.host || gv('#vHost'), L('host')], [!req.badge || gv('#vBadge'), L('badge')]].filter(x => !x[0]).map(x => x[1]);
   if (miss.length) return toast('필수 항목을 넣으세요: ' + miss.join(', '));
   const plate = gv('#vPlate'); if (plate && !plateValid(plate) && !confirmBox(`「${plate}」은 일반 차량번호 형식(12가3456)이 아닙니다. 그대로 저장할까요?`)) return;
@@ -4310,7 +4464,7 @@ async function saveVisitor() {
   toast(`${p.name} (${f.co}) 입실 등록 — ${r.tin}`); renderHeroStats(); renderEntry();
 }
 async function saveVehicle() {
-  const plate = gv('#cPlate'), co = gv('#cCo');
+  const plate = gv('#cPlate'), co = gv('#cCo') || (AC.cfg.coOpt ? '개인' : '');
   const miss = [[plate, L('plate')], [co, L('co')], [gv('#cDept'), L('dept')], [gv('#cPurp'), L('purpose')]].filter(x => !x[0]).map(x => x[1]);
   if (miss.length) return toast('필수 항목을 넣으세요: ' + miss.join(', '));
   if (!plateValid(plate) && !confirmBox(`「${plate}」은 일반 차량번호 형식(12가3456)이 아닙니다. 그대로 저장할까요?`)) return;
@@ -4436,7 +4590,7 @@ function openCar(cid) {
 }
 function openVisit(id) {
   const v = AC.visits[id]; if (!v) return;
-  const rows = [['구분', v.pid && v.cid ? '방문자 + 차량' : v.cid ? '방문차량' : '방문자'], ['일자', fmtD(v.d)], ['입실 · 퇴실', `${v.tin} ~ ${v.tout || '(구내)'}${v.outD && v.outD !== v.d ? ' (' + fmtDs(v.outD) + ')' : ''} · 체류 ${stayTxt(stayMin(v))}`], [L('name'), v.name || '-'], ['연락처', maskPhone(v.phone) || '-'], [L('plate'), v.plate || '-'], ['차종', v.vtype || '-'], [L('co') + '(당시)', v.co || '-'], [L('dept'), v.dept || '-'], [L('host'), v.host || '-'], [L('purpose'), v.purpose || '-'], [L('gate'), v.gate || '-'], [L('badge'), v.badge || '-'], ['동반 인원', v.cnt || 0], [L('items'), v.items || '-'], ['주차 · 계근', v.park || '-'], ['신분 확인 · 서약', `${v.idChk ? '✔ 신분 확인' : '-'} · ${v.pledge ? '✔ 보안서약' : '-'}`], ['사업장', v.siteName || '-'], ['처리 근무자', v.guard || '-'], ['자료 출처', v.src || 'manual'], ['비고', v.note || '-']];
+  const rows = [['구분', v.pid && v.cid ? '방문자 + 차량' : v.cid ? '방문차량' : '방문자'], ['일자', fmtD(v.d)], ['입실 · 퇴실', `${v.tin} ~ ${v.tout || '(구내)'}${v.outD && v.outD !== v.d ? ' (' + fmtDs(v.outD) + ')' : ''} · 체류 ${stayTxt(stayMin(v))}`], [L('name'), v.name || '-'], ['연락처', maskPhone(v.phone) || '-'], [L('plate'), v.plate || '-'], ['차종', v.vtype || '-'], [L('co') + '(당시)', v.co || '-'], [L('dept'), v.dept || '-'], [L('host'), v.host || '-'], [L('purpose'), v.purpose || '-'], [L('gate'), v.gate || '-'], [L('badge'), v.badge || '-'], ['동반 인원', v.cnt || 0], [L('items'), v.items || '-'], ['주차 · 계근', v.park || '-'], ['확인 항목', `${v.idChk ? '✔ ' + CHK(0) : '✘ ' + CHK(0)} · ${v.pledge ? '✔ ' + CHK(1) : '✘ ' + CHK(1)}`], ['사업장', v.siteName || '-'], ['처리 근무자', v.guard || '-'], ['자료 출처', v.src || 'manual'], ['비고', v.note || '-']];
   openModal(`<h2>${kndOf(v)} 출입 기록 상세</h2><div class="sub">${esc(v.id)}${v.banHit ? ' · <b style="color:var(--danger)">출입제한 확인 후 입실</b>' : ''}</div><dl class="cogrid">${rows.map(r => `<dt>${esc(r[0])}</dt><dd>${esc(r[1])}</dd>`).join('')}</dl>
     <div class="mrow">${v.pid ? `<button class="btn" data-pid="${esc(v.pid)}">👤 방문자 DATA</button>` : ''}${v.cid ? `<button class="btn" data-cid="${esc(v.cid)}">🚗 차량 DATA</button>` : ''}<button class="btn" id="vPass">🪪 방문증 인쇄(PDF)</button>${v.out ? '' : `<button class="btn pri" id="vOut">퇴실 처리</button>`}<button class="btn" id="vEdit">✏ 수정</button><button class="btn warn" id="vDel">삭제</button><button class="btn" id="mClose">닫기</button></div>`, md => {
     bindLinks(md); md.querySelector('#mClose').onclick = closeModal; md.querySelector('#vPass').onclick = () => outPass(id);
@@ -4569,7 +4723,8 @@ function renderSet() {
   const c = AC.cfg, H = c.hook || {};
   $('#p-set').innerHTML = `<div class="two">
   <div>
-  <section class="card"><h2>🏭 운영 사업장</h2><div class="body"><div class="grid2"><div class="field"><label>에스텍베스트 사업장에서 고르기</label><select id="sSite"><option value="">— 직접 입력 —</option>${['동부', '서부', '남부', '중부'].map(br => `<optgroup label="${br}지사">${SITE_LIST.filter(s => s.br === br).map(s => `<option value="${s.key}" ${c.site.key === s.key ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</optgroup>`).join('')}</select></div>
+  <section class="card" style="--c:#7A2E8E"><h2>🏷 사업장 유형</h2><div class="body"><div class="row" style="align-items:center"><span style="font-size:30px">${curProf().icon}</span><div style="flex:1"><b>${esc(AC.cfg.siteType ? curProf().name : '미선택(공장 기본값 사용 중)')}</b><div class="hint">${esc(curProf().desc)}</div></div><button class="btn pri" id="tyChg">유형 바꾸기</button></div></div></section>
+  <section class="card"><h2>🏭 운영 사업장</h2><div class="body"><div class="grid2"><div class="field"><label>에스텍베스트 사업장에서 고르기</label><select id="sSite"><option value="">— 직접 입력 —</option>${['동부', '서부', '남부', '중부'].map(br => `<optgroup label="${br}지사">${SITE_LIST.filter(s => s.br === br).map(s => `<option value="${s.key}" ${c.site.key === s.key ? 'selected' : ''}>${esc(s.name)} (${esc(s.type)})</option>`).join('')}</optgroup>`).join('')}</select></div>
    <div class="field"><label>사업장 이름</label><input id="sSiteN" value="${esc(c.site.name || '')}"></div></div><button class="btn pri" id="sSiteOk">저장</button><p class="hint">이 기기(보안실 PC · 태블릿)가 출입을 처리하는 사업장입니다. 공유 서버에서는 지사 단위로 권한이 나뉩니다.</p></div></section>
   <section class="card"><h2>🧩 목록 · 항목 커스터마이징</h2><div class="body">
    <div class="grid2">${[['gates', '출입구'], ['depts', '방문부서'], ['purposes', '방문 목적(업무)'], ['vtypes', '차종']].map(([k, n]) => `<div class="field"><label>${n} (한 줄에 하나)</label><textarea id="ls_${k}" rows="5">${esc(c[k].join('\n'))}</textarea></div>`).join('')}</div>
@@ -4605,7 +4760,8 @@ apikey: (공개 키)   Content-Type: application/json
    <p class="hint">이 기기 저장: 방문자 ${nf(Object.keys(AC.people).length)}명 · 차량 ${nf(Object.keys(AC.cars).length)}대 · 회사 ${nf(Object.keys(AC.cos).length)}곳 · 출입 ${nf(Object.keys(AC.visits).length)}건 · 약 ${nf(storeBytes() / 1048576, 1)}MB (브라우저 한도 약 5MB — 넘기 전에 공유 서버에 올리고 오래된 기록을 파기하세요)</p></div></section>
   </div></div>`;
   $('#shSt').textContent = $('#shareState') ? $('#shareState').textContent : '';
-  $('#sSite').onchange = e => { const s = SITE_LIST.find(x => x.key === e.target.value); if (s) $('#sSiteN').value = s.name; };
+  $('#tyChg').onclick = () => openTypePicker(false);
+  $('#sSite').onchange = e => { const s = SITE_LIST.find(x => x.key === e.target.value); if (!s) return; $('#sSiteN').value = s.name; const p = profForSiteType(s.type); if (p && p.key !== AC.cfg.siteType && confirmBox(`「${s.name}」은 ${s.type} 사업장입니다. 사업장 유형을 「${p.name}」으로 바꿀까요?`)) { applyProfile(p.key); toast(`${p.icon} ${p.name} 유형을 적용했습니다`); } };
   $('#sSiteOk').onclick = () => { const s = SITE_LIST.find(x => x.key === $('#sSite').value); c.site = { key: s ? s.key : 'u_' + norm($('#sSiteN').value), name: $('#sSiteN').value.trim(), br: s ? s.br : (UI.manager && UI.manager.br) || '' }; saveAC(); renderSiteCard(); toast('운영 사업장을 저장했습니다'); };
   $('#lsOk').onclick = () => { ['gates', 'depts', 'purposes', 'vtypes'].forEach(k => { const a = $('#ls_' + k).value.split('\n').map(x => x.trim()).filter(Boolean); if (a.length) c[k] = [...new Set(a)]; }); c.labels = {}; ['name', 'co', 'dept', 'host', 'purpose', 'gate', 'badge', 'items', 'plate'].forEach(k => { const v = $('#lb_' + k).value.trim(); if (v) c.labels[k] = v; }); c.required = { phone: $('#rq_phone').checked, host: $('#rq_host').checked, badge: $('#rq_badge').checked }; saveAC(); toast('저장했습니다'); };
   $('#pvOk').onclick = async () => { c.maskPhone = $('#pvMask').checked; c.retainY = Math.max(1, +$('#pvY').value || 3); c.lockMin = Math.max(0, +$('#pvLock').value || 0); const pin = $('#pvPin').value.trim(); if (pin) { if (pin.length < 4) return toast('PIN은 4자리 이상'); SECRET.pinHash = await sha256(pin); saveSecret(); } if (c.lockMin && !SECRET.pinHash) return toast('자동 잠금을 쓰려면 PIN을 정하세요'); saveAC(); armLock(); toast('저장했습니다'); };
@@ -4681,7 +4837,7 @@ async function init() {
   const mt = () => { $('#mediaRow').classList.toggle('hidden', !!UI.hideMedia); $('#medTog').textContent = UI.hideMedia ? '🎬 사진 · 영상 보기' : '🎬 사진 · 영상 숨기기'; mwShow(!UI.hideMedia); };
   $('#medTog').onclick = () => { UI.hideMedia = !UI.hideMedia; saveUI(); mt(); }; mt();
   if (!UI.F || typeof UI.F !== 'object') UI.F = { per: 'm' };
-  applyTheme(UI.theme); renderHeader(); showGate(); mediaInit(); bindSearch(); bindLock(); armLock(); renderAll(); renderShareState();
+  applyTheme(UI.theme); renderHeader(); showGate(); mediaInit(); bindSearch(); bindLock(); armLock(); renderAll(); renderShareState(); setTimeout(ensureSiteType, 300);
   window.addEventListener('app-access', () => renderAll());
   window.addEventListener('resize', () => { clearTimeout(V.rt); V.rt = setTimeout(drawCharts, 200); });
   setInterval(() => { renderShareState(); if (SHARE.ok == null && sbClient()) flushShare(); if (UI.tab === 'entry' && !document.activeElement.closest('.fg')) renderTodayList(); renderHeroStats(); }, 30000);
@@ -5111,7 +5267,7 @@ function chartForPeriod(F, w = 1270, h = 520) {
 function viewBlocks(view, F) {
   const M = viewModel(view, F), mg = UI.manager || {};
   const B = [{ k: 'title', t: M.title, approval: ['담 당', '반 장', '소 장'], sub: `${siteName()} · ${rangeTxt(F)}` },
-    { k: 'info', rows: [['사업장', siteName(), '작성일', fmtD(today())], ['작성자', [mg.name, mg.title].filter(Boolean).join(' ') || '-', '조회 조건', condTxt(F)]] },
+    { k: 'info', rows: [['사업장', siteName(), '사업장 유형', siteTypeName()], ['작성일', fmtD(today()), '작성자', [mg.name, mg.title].filter(Boolean).join(' ') || '-'], ['조회 조건', condTxt(F), '구분', '대외비 · 개인정보 포함']] },
     { k: 'box', title: '요약', items: summaryBox(M.S, F) }];
   if (view === 'period' || view === 'log') B.push({ k: 'img', src: chartForPeriod(F), wIn: 6.6, ratio: 520 / 1270, caption: '▲ 기간 출입 추이' });
   B.push({ k: 'h', t: `■ ${M.title}` });
@@ -5275,9 +5431,14 @@ const MANUAL = {
         { p: '웹 주소: https://sadness500-boop.github.io/S-Tec-Integrated-Access-Control-System/' },
         { ol: ['통합관리 시스템과 같은 아이디(이메일) · 비밀번호로 로그인합니다. 제작자가 「프로그램별 권한」에서 「출입 관리(stac) 사용」을 주어야 열립니다.', '처음 열면 「출입 담당 지정」 화면이 나옵니다. 근무자 성명(필수) · 직책 · 지사 · 연락처를 넣고 시작합니다. 교대 때 상단 「출입 담당」 카드를 눌러 바꿉니다.', '상단 「운영 사업장」 카드 → 「⚙ 설정 · 연동」에서 이 기기가 쓰이는 사업장을 고르고 저장합니다.'] },
         { tip: '로그인하지 않아도 이 기기에서는 쓸 수 있지만, 로그인하면 공유 서버에 저장되어 다른 기기(교대 근무 PC · 휴대폰)에서 같은 기록을 찾을 수 있습니다.' }] },
+      { h: '사업장 유형 선택 — 공장 · 아파트 · 병원 · 빌딩 · 연수원 · 공사현장 등', key: ['처음 열면 사업장 유형부터 고름', '유형에 맞게 방문처 · 목적 · 출입구 · 차종 · 확인 항목 자동', '항목 이름도 유형 용어로(동 · 호수 / 병동 · 진료과 / 공종)', '⚙ 설정 · 연동 → 「유형 바꾸기」'], img: 'm_gate', blocks: [
+        { p: '사업장마다 출입관리의 개념이 다릅니다. 공장은 협력업체 · 납품 차량, 아파트는 세대 방문 · 택배 · 이사, 병원은 면회 · 보호자 · 의약품 납품, 공사현장은 일용 · 협력업체 작업자와 장비 반입이 중심입니다. 처음 실행하면 「사업장 유형 선택」 창이 나오며, 고른 유형에 맞게 화면이 자동으로 바뀝니다.' },
+        { table: { head: ['유형', '방문처(부서 자리)', '확인 항목 예'], rows: [['🏭 공장 · 산업시설', '방문부서', '신분 확인 · 보안서약'], ['🏢 아파트 · 주거단지', '방문 동 · 호수', '세대 확인(인터폰) · 출입 안내'], ['🏥 병원 · 의료시설', '방문 병동 · 진료과', '발열 · 감염 증상 확인 · 면회 수칙'], ['🏙 오피스 빌딩', '방문 층 · 입주사', '신분 확인 · 방문증 교부'], ['🎓 연수원 · 교육시설', '교육과정 · 숙소동', '입소 확인 · 시설 이용 안내'], ['🏗 공사현장', '공종 · 작업 구역', '안전교육 이수 · 보호구 착용'], ['🏫 학교 · 대학교', '학과 · 건물', '신분 확인 · 방문 목적 확인'], ['🚚 물류센터 · 창고', '도크 · 창고동', '기사 신분 · 적재 확인'], ['🏛 공공기관 · 영사관', '방문 부서', '신분 확인 · 보안 검색'], ['⛳ 골프장 · 레저 · 리조트', '시설 · 코스', '예약 확인 · 안내'], ['🧩 기타 · 직접 구성', '직접 설정', '직접 설정']] } },
+        { ol: ['처음 열면 11가지 유형 카드 중 하나를 누릅니다(고르기 전에는 닫히지 않습니다).', '유형에 맞는 출입구 · 방문처 · 방문 목적 · 차종 · 확인 항목 · 항목 이름이 채워집니다. 아파트 등 개인 방문이 많은 유형은 소속 회사를 비워 두면 「개인」으로 저장됩니다.', '바꾸려면 「⚙ 설정 · 연동」 맨 위 「🏷 사업장 유형」 → 「유형 바꾸기」. 목록은 「목록 · 항목 커스터마이징」에서 사업장에 맞게 더 고칠 수 있습니다.', '「운영 사업장」에서 에스텍베스트 사업장을 고르면 그 사업장의 유형(아파트 · 병원 등)에 맞는 프로필로 바꿀지 물어봅니다.'] },
+        { warn: '유형을 바꾸면 출입구 · 방문처 · 목적 · 차종 목록과 항목 이름이 그 유형 기본값으로 다시 채워집니다. 이미 쌓인 출입 기록은 그대로 남습니다.' }] },
       { h: '메인 화면 둘러보기', key: ['좌측 상단 아이콘 · 운영 사업장 · 출입 담당', '통합 검색 칸(히어로)', '현장 영상(숨기기 가능)', '6개 메뉴 탭'], img: 'm_main', blocks: [
         { table: { head: ['위치', '하는 일'], rows: [['좌측 상단 아이콘', '누르면 맨 위로(앱 아이콘과 같은 그림)'], ['운영 사업장', '이 기기가 처리하는 사업장 지정'], ['출입 담당', '근무자 지정 · 변경(지정해야 프로그램이 열림)'], ['다운로드 QR · 친구 추천', '설치 주소 QR · 안내 문구 복사'], ['☀ 주간 · ☾ 야간 · ▣ 시스템', '화면 밝기(야간 근무 때 「야간」 권장)'], ['🔍 통합 검색', '이름 초성 · 차량번호 앞 두 자리 · 업체 · 부서 · 업무를 한 칸에서'], ['히어로 숫자', '오늘 방문자 · 오늘 방문차량 · 현재 구내 체류 · 누적 출입 DATA'], ['🎬 현장 영상 숨기기', '영상 칸을 접어 입력 화면을 넓게(기억됨)'], ['왼쪽 아래 「메인」', '통합관리 시스템 메인 화면으로']] } },
-        { table: { head: ['메뉴 탭', '하는 일'], rows: [['🚪 출입 등록', '방문자 입력 | 방문차량 입력(나뉨) + 통합 출입 현황(한곳에)'], ['📋 출입 현황', '구내 체류(미퇴실) · 일괄 퇴실 · 최근 14일 추이'], ['🗂 DATA 조회 · 관리', '개인별 · 차량별 · 회사 소속 명단 · 방문부서별 · 기간별'], ['🏢 회사 정보', '방문 회사 목록 · 인터넷 공개 기본정보'], ['🖨 출력', '출입 관리대장 · 현황표 · 실적 보고(엑셀 · Word · PDF · PPT)'], ['⚙ 설정 · 연동', '사업장 · 목록 · 항목 이름 · 개인정보 · 기존 시스템 연동 · 백업']] } }] },
+        { table: { head: ['메뉴 탭', '하는 일'], rows: [['🚪 출입 등록', '방문자 입력 | 방문차량 입력(나뉨) + 통합 출입 현황(한곳에)'], ['📋 출입 현황', '구내 체류(미퇴실) · 일괄 퇴실 · 최근 14일 추이'], ['🗂 DATA 조회 · 관리', '개인별 · 차량별 · 회사 소속 명단 · 방문부서별 · 기간별'], ['🏢 회사 정보', '방문 회사 목록 · 인터넷 공개 기본정보'], ['🖨 출력', '출입 관리대장 · 현황표 · 실적 보고(엑셀 · Word · PDF · PPT)'], ['⚙ 설정 · 연동', '사업장 유형 · 사업장 · 목록 · 항목 이름 · 개인정보 · 기존 시스템 연동 · 백업']] } }] },
       { h: '통합 검색 — 초성 · 번호판 · 업체', key: ['ㅎㄱㄷ → 홍길동 (초성 · 섞어 쓰기)', '34 → 34나5678 · 1234 (앞 두 자리부터)', '업체명 → 소속 방문자 · 차량 모두', '↑↓ · Enter로 바로 열기'], img: 'm_search', blocks: [
         { p: '메인 화면 가운데 검색 칸에 무엇이든 넣으면 방문자 · 방문차량 · 회사 · 방문부서 · 업무로 나누어 바로 보여 줍니다. 결과를 누르면 그 사람 · 차량 · 회사의 통합 화면이 열립니다.' },
         { table: { head: ['넣는 것', '찾는 방법', '예'], rows: [['사람 이름', '초성만 · 일부 글자 · 섞어 쓰기', 'ㅎㄱㄷ · 홍ㄱ · 길동 → 홍길동'], ['차량번호', '숫자 두 자리부터 — 앞자리 · 뒷자리 모두', '12 → 12가3456 / 34 → 3456 · 34나5678'], ['업체(회사)', '회사 이름 초성 · 일부 — 그 회사 방문자 · 차량도 함께', 'ㅎㅂ → (주)한빛기계 + 소속 김민수 · 34나5678'], ['방문부서 · 업무', '초성 · 일부 → 누르면 DATA 조회로', 'ㅊㅁ → 총무팀 / ㄴㅍ → 납품'], ['연락처', '뒤 4자리', '1234']] } },

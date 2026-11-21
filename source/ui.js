@@ -124,7 +124,7 @@ function showGate() {
   if (UI.manager) { gt.classList.add('hidden'); document.body.classList.remove('gate-locked'); return; }
   gt.classList.remove('hidden'); document.body.classList.add('gate-locked');
   $('#gateForm').innerHTML = mgrFormHtml() + '<button class="btn pri" id="gateGo" style="width:100%;padding:11px;font-size:15px">출입 담당 지정하고 시작</button>';
-  const commit = bindMgrForm($('#gateForm'), () => { showGate(); toast('통합 출입관리 시스템을 시작합니다'); });
+  const commit = bindMgrForm($('#gateForm'), () => { showGate(); toast('통합 출입관리 시스템을 시작합니다'); if (typeof ensureSiteType === 'function') ensureSiteType(); });
   $('#gateGo').onclick = commit;
   $('#mgName').addEventListener('keydown', e => { if (e.key === 'Enter') commit(); });
 }

@@ -34,7 +34,32 @@ function renderHeroStats() {
   const ins = inside(); $('#stIn').textContent = nf(ins.length); $('#stIn2').textContent = ins.length ? `건 · 차량 ${ins.filter(v => v.cid).length}` : '건';
   $('#stAll').textContent = nf(Object.keys(AC.visits).length); $('#stAll2').textContent = `건 · ${nf(Object.keys(AC.people).length)}명 · ${nf(Object.keys(AC.cars).length)}대`;
 }
-function renderSiteCard() { $('#siteName').textContent = AC.cfg.site && AC.cfg.site.name ? AC.cfg.site.name : '미지정'; }
+function renderSiteCard() {
+  const p = profOf(AC.cfg.siteType);
+  $('#siteName').textContent = `${p ? p.icon + ' ' : ''}${AC.cfg.site && AC.cfg.site.name ? AC.cfg.site.name : (p ? p.name : '미지정')}`;
+  const k = $('#kindDept'); if (k) k.textContent = `🏷 ${L('dept')} · 업무 초성`;
+  const lb = $('#siteCard .t1'); if (lb) lb.textContent = p ? `운영 사업장 · ${p.name.split(' · ')[0]}` : '운영 사업장';
+}
+/* =====================================================================
+ * 사업장 유형 선택 — 처음 한 번(⚙ 설정에서 언제든 변경)
+ * ===================================================================== */
+function ensureSiteType() { if (UI.manager && !AC.cfg.siteType) openTypePicker(true); }
+function openTypePicker(first) {
+  const cur = AC.cfg.siteType;
+  const hasCustom = !!cur && (JSON.stringify(AC.cfg.depts) !== JSON.stringify(curProf().depts) || JSON.stringify(AC.cfg.purposes) !== JSON.stringify(curProf().purposes));
+  openModal(`<h2>🏷 사업장 유형 선택</h2><div class="sub">${first ? '이 기기에서 출입을 관리할 사업장의 유형을 고르세요. 유형에 맞게 방문처(부서 · 동호수 · 병동 · 층 · 공종) · 방문 목적 · 출입구 · 차종 · 확인 항목 · 항목 이름이 자동으로 맞춰집니다.' : '유형을 바꾸면 방문처 · 목적 · 출입구 · 차종 목록과 항목 이름이 새 유형 기본값으로 바뀝니다. 지금까지의 출입 기록은 그대로 남습니다.'}</div>
+    <div class="typegrid">${SITE_PROFILES.map(p => `<button type="button" class="tyc ${p.key === cur ? 'on' : ''}" data-ty="${p.key}"><span class="tyi">${p.icon}</span><b>${esc(p.name)}</b><small>${esc(p.desc)}</small><em>${esc(p.ex)}</em>${p.key === cur ? '<span class="tyn">현재</span>' : ''}</button>`).join('')}</div>
+    ${hasCustom ? '<p class="hint">⚠ 지금 목록을 직접 고친 내용이 있습니다 — 유형을 바꾸면 새 유형 기본값으로 바뀝니다(⚙ 설정에서 다시 고칠 수 있음).</p>' : ''}
+    <div class="mrow">${first ? '' : '<button class="btn" id="mClose">닫기</button>'}</div>`, md => {
+    const c = md.querySelector('#mClose'); if (c) c.onclick = closeModal;
+    md.querySelectorAll('[data-ty]').forEach(b => b.onclick = () => {
+      const p = profOf(b.dataset.ty); if (!first && p.key === cur) return closeModal();
+      applyProfile(p.key); closeModal(); toast(`${p.icon} ${p.name} 유형으로 시작합니다 — 목록 · 항목 이름은 ⚙ 설정에서 고칠 수 있습니다`, 4200); renderAll();
+      if (first && !(AC.cfg.site && AC.cfg.site.name)) setTimeout(openSitePick, 400);
+    });
+  }, 2);
+  if (first) { const bg = $('.modal-bg'); if (bg) { bg.addEventListener('click', e => { if (e.target === bg) e.stopImmediatePropagation(); }, true); bg.addEventListener('keydown', e => { if (e.key === 'Escape') e.stopImmediatePropagation(); }, true); } }
+}
 
 /* =====================================================================
  * 통합 검색 (메인 화면)
@@ -96,7 +121,7 @@ function renderEntry() {
    <div class="body"><div id="vBan"></div><div class="fg">
     <label>${esc(L('name'))} <i>*</i><input id="vName" autocomplete="off" placeholder="예: 홍길동 (초성 ㅎㄱㄷ로 찾기)"><div class="sug hidden" id="vNameSug"></div></label>
     <label>연락처 ${req.phone ? '<i>*</i>' : ''}<input id="vPhone" inputmode="tel" autocomplete="off" placeholder="동명이인 구분에 사용"></label>
-    <label>${esc(L('co'))} <i>*</i><input id="vCo" autocomplete="off" placeholder="예: (주)한빛기계"><div class="sug hidden" id="vCoSug"></div></label>
+    <label>${esc(L('co'))} ${AC.cfg.coOpt ? '' : '<i>*</i>'}<input id="vCo" autocomplete="off" placeholder="${AC.cfg.coOpt ? '비우면 「개인」으로 저장' : '예: (주)한빛기계'}"><div class="sug hidden" id="vCoSug"></div></label>
     <label>직위 · 직책<input id="vPos" autocomplete="off"></label>
     <label>${esc(L('dept'))} <i>*</i><input id="vDept" list="dlDept" autocomplete="off"></label>
     <label>${esc(L('host'))} ${req.host ? '<i>*</i>' : ''}<input id="vHost" autocomplete="off" placeholder="면담자 이름"></label>
@@ -109,14 +134,14 @@ function renderEntry() {
     <label>입실 일자<input id="vD" type="date" value="${today()}"></label>
     <label>입실 시각<input id="vTin" type="time" value="${nowHM()}"></label>
     <label class="full">비고<input id="vNote" autocomplete="off"></label>
-    <div class="full"><label class="ck"><input type="checkbox" id="vIdChk"> 신분 확인</label><label class="ck"><input type="checkbox" id="vPledge"> 보안서약 · 개인정보 수집 동의</label></div>
+    <div class="full"><label class="ck"><input type="checkbox" id="vIdChk"> ${esc(CHK(0))}</label><label class="ck"><input type="checkbox" id="vPledge"> ${esc(CHK(1))}</label></div>
    </div><div class="row" style="margin-top:12px;justify-content:flex-end"><button class="btn" id="vReset">지우기</button><button class="btn pri" id="vSave">👤 방문자 입실 등록</button></div>
    <div class="priv">🔒 연락처는 목록 · 출력물에서 가려 표시합니다(설정에서 변경). 수집 항목은 출입관리 목적에만 쓰이며 보유기간(${AC.cfg.retainY}년)이 지나면 파기합니다.</div></div></section>
   <section class="card fcard veh" aria-label="방문차량 입력"><div class="ftop"><span class="big">🚗</span><div><b>방문차량 입력</b><small>번호판 숫자 두 자리부터 기존 차량을 찾아 소속 · 차종 · 운전자를 채워 줍니다</small></div></div>
    <div class="body"><div id="cBan"></div><div class="fg">
     <label>${esc(L('plate'))} <i>*</i><input id="cPlate" autocomplete="off" placeholder="예: 12가3456 (숫자 2자리부터 검색)"><div class="sug hidden" id="cPlateSug"></div></label>
     <label>차종<select id="cType">${opt(c.vtypes, '', '선택')}</select></label>
-    <label>${esc(L('co'))} <i>*</i><input id="cCo" autocomplete="off"><div class="sug hidden" id="cCoSug"></div></label>
+    <label>${esc(L('co'))} ${AC.cfg.coOpt ? '' : '<i>*</i>'}<input id="cCo" autocomplete="off" placeholder="${AC.cfg.coOpt ? '비우면 「개인」으로 저장' : ''}"><div class="sug hidden" id="cCoSug"></div></label>
     <label>차량 모델 · 색상<input id="cModel" autocomplete="off" placeholder="포터2 흰색"></label>
     <label>운전자 이름<input id="cDriver" autocomplete="off" placeholder="있으면 방문자 DATA에도 연결"><div class="sug hidden" id="cDriverSug"></div></label>
     <label>운전자 연락처<input id="cPhone" inputmode="tel" autocomplete="off"></label>
@@ -195,7 +220,7 @@ function confirmBan(o, what) {
 }
 const gv = id => ($(id) ? $(id).value.trim() : '');
 async function saveVisitor() {
-  const f = { name: gv('#vName'), phone: gv('#vPhone').replace(/[^\d-]/g, ''), co: gv('#vCo'), title: gv('#vPos') }, req = AC.cfg.required || {};
+  const f = { name: gv('#vName'), phone: gv('#vPhone').replace(/[^\d-]/g, ''), co: gv('#vCo') || (AC.cfg.coOpt ? '개인' : ''), title: gv('#vPos') }, req = AC.cfg.required || {};
   const miss = [[f.name, L('name')], [f.co, L('co')], [gv('#vDept'), L('dept')], [gv('#vPurp'), L('purpose')], [!req.phone || f.phone, '연락처'], [!req.host || gv('#vHost'), L('host')], [!req.badge || gv('#vBadge'), L('badge')]].filter(x => !x[0]).map(x => x[1]);
   if (miss.length) return toast('필수 항목을 넣으세요: ' + miss.join(', '));
   const plate = gv('#vPlate'); if (plate && !plateValid(plate) && !confirmBox(`「${plate}」은 일반 차량번호 형식(12가3456)이 아닙니다. 그대로 저장할까요?`)) return;
@@ -207,7 +232,7 @@ async function saveVisitor() {
   toast(`${p.name} (${f.co}) 입실 등록 — ${r.tin}`); renderHeroStats(); renderEntry();
 }
 async function saveVehicle() {
-  const plate = gv('#cPlate'), co = gv('#cCo');
+  const plate = gv('#cPlate'), co = gv('#cCo') || (AC.cfg.coOpt ? '개인' : '');
   const miss = [[plate, L('plate')], [co, L('co')], [gv('#cDept'), L('dept')], [gv('#cPurp'), L('purpose')]].filter(x => !x[0]).map(x => x[1]);
   if (miss.length) return toast('필수 항목을 넣으세요: ' + miss.join(', '));
   if (!plateValid(plate) && !confirmBox(`「${plate}」은 일반 차량번호 형식(12가3456)이 아닙니다. 그대로 저장할까요?`)) return;
@@ -333,7 +358,7 @@ function openCar(cid) {
 }
 function openVisit(id) {
   const v = AC.visits[id]; if (!v) return;
-  const rows = [['구분', v.pid && v.cid ? '방문자 + 차량' : v.cid ? '방문차량' : '방문자'], ['일자', fmtD(v.d)], ['입실 · 퇴실', `${v.tin} ~ ${v.tout || '(구내)'}${v.outD && v.outD !== v.d ? ' (' + fmtDs(v.outD) + ')' : ''} · 체류 ${stayTxt(stayMin(v))}`], [L('name'), v.name || '-'], ['연락처', maskPhone(v.phone) || '-'], [L('plate'), v.plate || '-'], ['차종', v.vtype || '-'], [L('co') + '(당시)', v.co || '-'], [L('dept'), v.dept || '-'], [L('host'), v.host || '-'], [L('purpose'), v.purpose || '-'], [L('gate'), v.gate || '-'], [L('badge'), v.badge || '-'], ['동반 인원', v.cnt || 0], [L('items'), v.items || '-'], ['주차 · 계근', v.park || '-'], ['신분 확인 · 서약', `${v.idChk ? '✔ 신분 확인' : '-'} · ${v.pledge ? '✔ 보안서약' : '-'}`], ['사업장', v.siteName || '-'], ['처리 근무자', v.guard || '-'], ['자료 출처', v.src || 'manual'], ['비고', v.note || '-']];
+  const rows = [['구분', v.pid && v.cid ? '방문자 + 차량' : v.cid ? '방문차량' : '방문자'], ['일자', fmtD(v.d)], ['입실 · 퇴실', `${v.tin} ~ ${v.tout || '(구내)'}${v.outD && v.outD !== v.d ? ' (' + fmtDs(v.outD) + ')' : ''} · 체류 ${stayTxt(stayMin(v))}`], [L('name'), v.name || '-'], ['연락처', maskPhone(v.phone) || '-'], [L('plate'), v.plate || '-'], ['차종', v.vtype || '-'], [L('co') + '(당시)', v.co || '-'], [L('dept'), v.dept || '-'], [L('host'), v.host || '-'], [L('purpose'), v.purpose || '-'], [L('gate'), v.gate || '-'], [L('badge'), v.badge || '-'], ['동반 인원', v.cnt || 0], [L('items'), v.items || '-'], ['주차 · 계근', v.park || '-'], ['확인 항목', `${v.idChk ? '✔ ' + CHK(0) : '✘ ' + CHK(0)} · ${v.pledge ? '✔ ' + CHK(1) : '✘ ' + CHK(1)}`], ['사업장', v.siteName || '-'], ['처리 근무자', v.guard || '-'], ['자료 출처', v.src || 'manual'], ['비고', v.note || '-']];
   openModal(`<h2>${kndOf(v)} 출입 기록 상세</h2><div class="sub">${esc(v.id)}${v.banHit ? ' · <b style="color:var(--danger)">출입제한 확인 후 입실</b>' : ''}</div><dl class="cogrid">${rows.map(r => `<dt>${esc(r[0])}</dt><dd>${esc(r[1])}</dd>`).join('')}</dl>
     <div class="mrow">${v.pid ? `<button class="btn" data-pid="${esc(v.pid)}">👤 방문자 DATA</button>` : ''}${v.cid ? `<button class="btn" data-cid="${esc(v.cid)}">🚗 차량 DATA</button>` : ''}<button class="btn" id="vPass">🪪 방문증 인쇄(PDF)</button>${v.out ? '' : `<button class="btn pri" id="vOut">퇴실 처리</button>`}<button class="btn" id="vEdit">✏ 수정</button><button class="btn warn" id="vDel">삭제</button><button class="btn" id="mClose">닫기</button></div>`, md => {
     bindLinks(md); md.querySelector('#mClose').onclick = closeModal; md.querySelector('#vPass').onclick = () => outPass(id);
@@ -466,7 +491,8 @@ function renderSet() {
   const c = AC.cfg, H = c.hook || {};
   $('#p-set').innerHTML = `<div class="two">
   <div>
-  <section class="card"><h2>🏭 운영 사업장</h2><div class="body"><div class="grid2"><div class="field"><label>에스텍베스트 사업장에서 고르기</label><select id="sSite"><option value="">— 직접 입력 —</option>${['동부', '서부', '남부', '중부'].map(br => `<optgroup label="${br}지사">${SITE_LIST.filter(s => s.br === br).map(s => `<option value="${s.key}" ${c.site.key === s.key ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</optgroup>`).join('')}</select></div>
+  <section class="card" style="--c:#7A2E8E"><h2>🏷 사업장 유형</h2><div class="body"><div class="row" style="align-items:center"><span style="font-size:30px">${curProf().icon}</span><div style="flex:1"><b>${esc(AC.cfg.siteType ? curProf().name : '미선택(공장 기본값 사용 중)')}</b><div class="hint">${esc(curProf().desc)}</div></div><button class="btn pri" id="tyChg">유형 바꾸기</button></div></div></section>
+  <section class="card"><h2>🏭 운영 사업장</h2><div class="body"><div class="grid2"><div class="field"><label>에스텍베스트 사업장에서 고르기</label><select id="sSite"><option value="">— 직접 입력 —</option>${['동부', '서부', '남부', '중부'].map(br => `<optgroup label="${br}지사">${SITE_LIST.filter(s => s.br === br).map(s => `<option value="${s.key}" ${c.site.key === s.key ? 'selected' : ''}>${esc(s.name)} (${esc(s.type)})</option>`).join('')}</optgroup>`).join('')}</select></div>
    <div class="field"><label>사업장 이름</label><input id="sSiteN" value="${esc(c.site.name || '')}"></div></div><button class="btn pri" id="sSiteOk">저장</button><p class="hint">이 기기(보안실 PC · 태블릿)가 출입을 처리하는 사업장입니다. 공유 서버에서는 지사 단위로 권한이 나뉩니다.</p></div></section>
   <section class="card"><h2>🧩 목록 · 항목 커스터마이징</h2><div class="body">
    <div class="grid2">${[['gates', '출입구'], ['depts', '방문부서'], ['purposes', '방문 목적(업무)'], ['vtypes', '차종']].map(([k, n]) => `<div class="field"><label>${n} (한 줄에 하나)</label><textarea id="ls_${k}" rows="5">${esc(c[k].join('\n'))}</textarea></div>`).join('')}</div>
@@ -502,7 +528,8 @@ apikey: (공개 키)   Content-Type: application/json
    <p class="hint">이 기기 저장: 방문자 ${nf(Object.keys(AC.people).length)}명 · 차량 ${nf(Object.keys(AC.cars).length)}대 · 회사 ${nf(Object.keys(AC.cos).length)}곳 · 출입 ${nf(Object.keys(AC.visits).length)}건 · 약 ${nf(storeBytes() / 1048576, 1)}MB (브라우저 한도 약 5MB — 넘기 전에 공유 서버에 올리고 오래된 기록을 파기하세요)</p></div></section>
   </div></div>`;
   $('#shSt').textContent = $('#shareState') ? $('#shareState').textContent : '';
-  $('#sSite').onchange = e => { const s = SITE_LIST.find(x => x.key === e.target.value); if (s) $('#sSiteN').value = s.name; };
+  $('#tyChg').onclick = () => openTypePicker(false);
+  $('#sSite').onchange = e => { const s = SITE_LIST.find(x => x.key === e.target.value); if (!s) return; $('#sSiteN').value = s.name; const p = profForSiteType(s.type); if (p && p.key !== AC.cfg.siteType && confirmBox(`「${s.name}」은 ${s.type} 사업장입니다. 사업장 유형을 「${p.name}」으로 바꿀까요?`)) { applyProfile(p.key); toast(`${p.icon} ${p.name} 유형을 적용했습니다`); } };
   $('#sSiteOk').onclick = () => { const s = SITE_LIST.find(x => x.key === $('#sSite').value); c.site = { key: s ? s.key : 'u_' + norm($('#sSiteN').value), name: $('#sSiteN').value.trim(), br: s ? s.br : (UI.manager && UI.manager.br) || '' }; saveAC(); renderSiteCard(); toast('운영 사업장을 저장했습니다'); };
   $('#lsOk').onclick = () => { ['gates', 'depts', 'purposes', 'vtypes'].forEach(k => { const a = $('#ls_' + k).value.split('\n').map(x => x.trim()).filter(Boolean); if (a.length) c[k] = [...new Set(a)]; }); c.labels = {}; ['name', 'co', 'dept', 'host', 'purpose', 'gate', 'badge', 'items', 'plate'].forEach(k => { const v = $('#lb_' + k).value.trim(); if (v) c.labels[k] = v; }); c.required = { phone: $('#rq_phone').checked, host: $('#rq_host').checked, badge: $('#rq_badge').checked }; saveAC(); toast('저장했습니다'); };
   $('#pvOk').onclick = async () => { c.maskPhone = $('#pvMask').checked; c.retainY = Math.max(1, +$('#pvY').value || 3); c.lockMin = Math.max(0, +$('#pvLock').value || 0); const pin = $('#pvPin').value.trim(); if (pin) { if (pin.length < 4) return toast('PIN은 4자리 이상'); SECRET.pinHash = await sha256(pin); saveSecret(); } if (c.lockMin && !SECRET.pinHash) return toast('자동 잠금을 쓰려면 PIN을 정하세요'); saveAC(); armLock(); toast('저장했습니다'); };
@@ -578,7 +605,7 @@ async function init() {
   const mt = () => { $('#mediaRow').classList.toggle('hidden', !!UI.hideMedia); $('#medTog').textContent = UI.hideMedia ? '🎬 사진 · 영상 보기' : '🎬 사진 · 영상 숨기기'; mwShow(!UI.hideMedia); };
   $('#medTog').onclick = () => { UI.hideMedia = !UI.hideMedia; saveUI(); mt(); }; mt();
   if (!UI.F || typeof UI.F !== 'object') UI.F = { per: 'm' };
-  applyTheme(UI.theme); renderHeader(); showGate(); mediaInit(); bindSearch(); bindLock(); armLock(); renderAll(); renderShareState();
+  applyTheme(UI.theme); renderHeader(); showGate(); mediaInit(); bindSearch(); bindLock(); armLock(); renderAll(); renderShareState(); setTimeout(ensureSiteType, 300);
   window.addEventListener('app-access', () => renderAll());
   window.addEventListener('resize', () => { clearTimeout(V.rt); V.rt = setTimeout(drawCharts, 200); });
   setInterval(() => { renderShareState(); if (SHARE.ok == null && sbClient()) flushShare(); if (UI.tab === 'entry' && !document.activeElement.closest('.fg')) renderTodayList(); renderHeroStats(); }, 30000);

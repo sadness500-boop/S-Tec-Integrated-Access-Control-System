@@ -1,7 +1,7 @@
 {
-  "version": "1.0.4",
+  "version": "1.0.5",
   "date": "2026-11-20",
   "note": "메인 히어로 정리 — 인사 문구 삭제, 새 표제(오가는 모든 사람과 차량, 한 번의 검색으로 이어집니다), 글자 크기 조정으로 높이 축소, 디오라마를 카드 오른쪽 끝까지 채우고 왼쪽은 부드럽게 스며들도록(디오라마 전체 표시)",
-  "html": "releases/S-Tec-Integrated-Access-Control-System_v1.0.4.html",
-  "apk": "releases/S-Tec-Integrated-Access-Control-System_v1.0.4.apk"
+  "html": "releases/S-Tec-Integrated-Access-Control-System_v1.0.5.html",
+  "apk": "releases/S-Tec-Integrated-Access-Control-System_v1.0.5.apk"
 }

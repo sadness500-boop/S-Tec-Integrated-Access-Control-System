@@ -15,7 +15,7 @@ asset['hero'] = uri(V + 'hero.jpg', 'image/jpeg')        # 출력물(PPT · Word
 asset['heroAnim'] = uri(V + 'hero-anim.gif', 'image/gif')      # 메인화면 히어로 — 통합 출입관리 시스템 디오라마 애니메이션
 asset['fig'] = {k: v for k, v in asset['fig'].items() if k in ('dio_sec', 'cute_sec', 'hq', 'mgr')}
 html = rd(S + 'index.html')
-APPJS = '\n'.join(rd(S + f) for f in ['app.js', 'ui.js', 'views.js', 'media.js', 'out.js', 'guide.js'])
+APPJS = '\n'.join(rd(S + f) for f in ['app.js', 'profiles.js', 'ui.js', 'views.js', 'media.js', 'out.js', 'guide.js'])
 LIBS = rd(V + 'libs.html') + '\n<script>/* ExcelJS (MIT) */\n' + scr(rd(V + 'exceljs.min.js')) + '\n</script>'
 for ph, val in [('<!--LIBS-->', LIBS), ('<!--QR-->', rd(V + 'qr.html')),
                 ('/*ASSETS*/', 'const ASSET=' + json.dumps(asset, ensure_ascii=False) + ';'),

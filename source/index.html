@@ -10,9 +10,9 @@
 <title>S-Tec Integrated Access Control System · 통합 출입관리 시스템</title>
 <meta name="description" content="에스텍 통합 출입관리 시스템 — 방문자 · 방문차량 출입 등록과 누적 DATA 관리">
 <meta name="theme-color" content="#0C2350">
-<link rel="manifest" href="manifest.webmanifest?v=1.0.4">
-<link rel="icon" href="icons/favicon-48.png?v=1.0.4">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.0.4">
+<link rel="manifest" href="manifest.webmanifest?v=1.0.5">
+<link rel="icon" href="icons/favicon-48.png?v=1.0.5">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1.0.5">
 <style>
 /* =====================================================================
    S-Tec Integrated Access Control System — 화면 디자인
@@ -409,6 +409,17 @@ html[data-theme="dark"] .mainbtn{background:#EEF1FA;color:#0F1530}
 .hero-act{margin-top:12px}.hero-act .cta{padding:8px 14px;font-size:13.5px}
 @media(max-width:980px){.hero{grid-template-columns:1fr;min-height:0}.hero-art{height:auto;aspect-ratio:16/9;border-radius:28px 28px 0 0}
   .hero-art img{-webkit-mask-image:linear-gradient(180deg,#000 80%,transparent);mask-image:linear-gradient(180deg,#000 80%,transparent)}.usearch .kinds{flex-wrap:wrap}}
+/* 사업장 유형 선택 카드 */
+.typegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin:12px 0}
+.tyc{position:relative;text-align:left;border:1.5px solid var(--line);background:var(--panel);border-radius:18px;padding:14px 14px 12px;display:flex;flex-direction:column;gap:4px;color:var(--ink);transition:border-color .15s,transform .15s,box-shadow .15s}
+.tyc:hover{border-color:var(--nv2);transform:translateY(-2px);box-shadow:var(--shadow)}
+.tyc.on{border-color:var(--gr);background:color-mix(in srgb,var(--gr) 7%,var(--panel))}
+.tyc .tyi{font-size:30px;line-height:1}
+.tyc b{font-size:15px;letter-spacing:-.02em}
+.tyc small{color:var(--mute);font-size:12px;line-height:1.45}
+.tyc em{font-style:normal;font-size:11px;color:var(--nv2);font-weight:700}
+html[data-theme="dark"] .tyc em{color:#9DB0FF}
+.tyc .tyn{position:absolute;top:10px;right:10px;font-size:10.5px;font-weight:800;color:#fff;background:var(--gr);border-radius:999px;padding:2px 8px}
 /* ---------- 출입관리 전용 ---------- */
 .hero{overflow:visible;z-index:5}
 .hero::before{display:none}
@@ -508,7 +519,7 @@ html[data-theme="dark"] .lnkb{color:#9DB0FF}
       <div class="meta">이름 초성 · 차량번호 두 자리 · 업체명 하나로 방문 이력과 소속 변화까지 한눈에.</div>
       <div class="usearch" id="usearch">
         <div class="box"><span class="ic">🔍</span><input id="uq" type="search" autocomplete="off" spellcheck="false" placeholder="이름(초성 ㅎㄱㄷ) · 차량번호 앞 2자리 · 업체 · 부서 · 업무" aria-label="통합 검색"><button class="btn sm" id="uqClr" type="button" aria-label="지우기">✕</button></div>
-        <div class="kinds"><span>👤 방문자 이름 · 초성</span><span>🚗 차량번호 숫자 2자리부터</span><span>🏢 업체명 → 소속 방문자 · 차량</span><span>🏷 방문부서 · 업무 초성</span></div>
+        <div class="kinds"><span>👤 방문자 이름 · 초성</span><span>🚗 차량번호 숫자 2자리부터</span><span>🏢 업체명 → 소속 방문자 · 차량</span><span id="kindDept">🏷 방문부서 · 업무 초성</span></div>
         <div class="sres hidden" id="sres" role="listbox"></div>
       </div>
       <div class="stats">
