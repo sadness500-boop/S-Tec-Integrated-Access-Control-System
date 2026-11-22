@@ -493,9 +493,9 @@ function renderSet() {
   $('#p-set').innerHTML = `
   <section class="card sethead" style="--c:#7A2E8E"><div class="shg">
    <div class="shz shty"><span class="shico">${P.icon}</span><div style="min-width:0"><small class="k">사업장 유형</small><b>${esc(AC.cfg.siteType ? P.name : '미선택(공장 기본값 사용 중)')}</b><p>${esc(P.desc)}</p><button class="btn" id="tyChg">🏷 유형 바꾸기</button></div></div>
-   <div class="shz shsite"><small class="k">운영 사업장</small><div class="shrow"><select id="sSite" aria-label="에스텍베스트 사업장에서 고르기"><option value="">— 직접 입력 —</option>${['동부', '서부', '남부', '중부'].map(br => `<optgroup label="${br}지사">${SITE_LIST.filter(s => s.br === br).map(s => `<option value="${s.key}" ${c.site.key === s.key ? 'selected' : ''}>${esc(s.name)} (${esc(s.type)})</option>`).join('')}</optgroup>`).join('')}</select>
+   <div class="shz shsite"><small class="k">운영 사업장</small><div class="shrow"><select id="sSite" aria-label="에스텍 그룹 사업장에서 고르기"><option value="">— 직접 입력 —</option>${['동부', '서부', '남부', '중부'].map(br => `<optgroup label="${br}지사">${SITE_LIST.filter(s => s.br === br).map(s => `<option value="${s.key}" ${c.site.key === s.key ? 'selected' : ''}>${esc(s.name)} (${esc(s.type)})</option>`).join('')}</optgroup>`).join('')}</select>
      <input id="sSiteN" value="${esc(c.site.name || '')}" placeholder="사업장 이름" aria-label="사업장 이름"><button class="btn pri" id="sSiteOk">저장</button></div>
-     <p class="hint">이 기기(보안실 PC · 태블릿)가 출입을 처리하는 사업장 — 에스텍베스트 사업장에서 고르거나 이름을 직접 넣습니다. 공유 서버에서는 지사 단위로 권한이 나뉩니다.</p></div>
+     <p class="hint">이 기기(보안실 PC · 태블릿)가 출입을 처리하는 사업장 — 에스텍 그룹 사업장에서 고르거나 이름을 직접 넣습니다. 공유 서버에서는 지사 단위로 권한이 나뉩니다.</p></div>
    <button class="shz intgbtn ${open ? 'on' : ''}" id="intgTog" type="button" aria-expanded="${open}" aria-controls="intgPanel"><span class="ib">🔌</span><span><b>기존 시스템 연동 (커스터마이징)</b><small>가져오기 · 내보내기 · 웹훅 · 서버 수신</small>${hkSt ? `<span class="st">${esc(hkSt)}</span>` : ''}</span><span class="chev">▾</span></button>
   </div></section>
   <section class="card intgp ${open ? '' : 'hidden'}" id="intgPanel" style="--c:var(--gr)"><h2>🔌 기존 시스템 연동 (커스터마이징) <span class="r">기존 출입 · 차량번호인식(LPR) · 출입카드 · 방문예약 시스템과 주고받기 <button class="btn sm" id="intgClose" type="button">접기 ▴</button></span></h2><div class="body"><div class="igrid">
